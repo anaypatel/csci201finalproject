@@ -1,8 +1,6 @@
 package server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -40,32 +38,6 @@ public class GameServer
 		if(mmsg != null)
 		{
 			System.out.println("X: " + mmsg.getX() + "  Y: " + mmsg.getY()); 
-		}
-	}
-	
-	public static void main(String[] args) {
-
-		InputStreamReader isr = new InputStreamReader(System.in);
-		BufferedReader br = new BufferedReader(isr);
-		
-		try {
-			
-			System.out.print("Please enter a valid port: ");
-
-			int port = Integer.parseInt(br.readLine());
-
-			while (port < 1024) {
-				System.out.println("Invalid Port!");
-				System.out.print("Please enter a valid port: ");
-				port = Integer.parseInt(br.readLine());
-			}
-
-			System.out.println("Success!");
-
-			GameServer gs = new GameServer(port);
-
-		} catch (IOException ioe) {
-			System.out.println(ioe.getMessage());
 		}
 	}
 	
