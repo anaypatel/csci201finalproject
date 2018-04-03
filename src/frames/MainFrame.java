@@ -11,6 +11,10 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JButton;
+import javax.swing.AbstractAction;
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame {
 
@@ -18,6 +22,7 @@ public class MainFrame extends JFrame {
 	private JTextField txtIpAddress;
 	private JTextField txtPort;
 	private JButton btnJoin;
+	private final Action action = new SwingAction();
 
 	/**
 	 * Launch the application.
@@ -76,6 +81,11 @@ public class MainFrame extends JFrame {
 		txtPort.setColumns(10);
 		
 		btnJoin = new JButton("Join");
+		btnJoin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		btnJoin.setAction(action);
 		GridBagConstraints gbc_btnJoin = new GridBagConstraints();
 		gbc_btnJoin.insets = new Insets(0, 0, 0, 5);
 		gbc_btnJoin.gridx = 5;
@@ -83,4 +93,31 @@ public class MainFrame extends JFrame {
 		contentPane.add(btnJoin, gbc_btnJoin);
 	}
 
+	private class SwingAction extends AbstractAction {
+		public SwingAction() {
+			putValue(NAME, "Join");
+			putValue(SHORT_DESCRIPTION, "Join the game.");
+		}
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("hello");
+			
+		}
+	}
+	
+	public JTextField getTxtIpAddress() {
+		return txtIpAddress;
+	}
+
+	public void setTxtIpAddress(JTextField txtIpAddress) {
+		this.txtIpAddress = txtIpAddress;
+	}
+
+	public JTextField getTxtPort() {
+		return txtPort;
+	}
+
+	public void setTxtPort(JTextField txtPort) {
+		this.txtPort = txtPort;
+	}
+	
 }

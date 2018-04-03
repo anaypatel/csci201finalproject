@@ -19,7 +19,7 @@ public class Client extends Thread
 {
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
-
+	private MainFrame ex;
 	
 	public Client()
 	{
@@ -29,49 +29,40 @@ public class Client extends Thread
 		
 		while(true)
 		{
-			System.out.print("Please enter an IP address: ");
-			try
-			{
-				String hostname = br.readLine();
-				System.out.print("Please enter a port number: ");
-				int port = Integer.parseInt(br.readLine());
-				
-				System.out.println("Trying to connect to " + hostname + ":" + port);
-				Socket s = new Socket(hostname, port);
-				System.out.println("Connected to " + hostname + ":" + port);
-				ois = new ObjectInputStream(s.getInputStream());
-				oos = new ObjectOutputStream(s.getOutputStream());
-				this.start();
-				Scanner scan = new Scanner(System.in);
-				
+//			System.out.print("Please enter an IP address: ");
+//			try
+//			{
+//				String hostname = br.readLine();
+//				System.out.print("Please enter a port number: ");
+//				int port = Integer.parseInt(br.readLine());
+//				
+//				System.out.println("Trying to connect to " + hostname + ":" + port);
+//				Socket s = new Socket(hostname, port);
+//				System.out.println("Connected to " + hostname + ":" + port);
+//				ois = new ObjectInputStream(s.getInputStream());
+//				oos = new ObjectOutputStream(s.getOutputStream());
+//				this.start();
+//				Scanner scan = new Scanner(System.in);
+							
 				EventQueue.invokeLater(() -> {
-					MainFrame ex = new MainFrame();
+					ex = new MainFrame();
 		            ex.setVisible(true);
 		        });
 				
+				boolean connect = false;
+				
 				//This is where we keep writing messages. 
-				while(true) 
+				while(!connect) 
 				{
-					
-
-					boolean validCommand = false;
-					String line = scan.nextLine();
-					System.out.println("");
-					
-					
-					
-					
-					
-					
-					
-					
-					
+					if(ex.getTxtPort() != null) {
+						
+					}
 				}
-			}
-			catch(IOException ioe)
-			{
-				System.out.println("Reading Input Error from Client Main: " + ioe);
-			}
+//			}
+//			catch(IOException ioe)
+//			{
+//				System.out.println("Reading Input Error from Client Main: " + ioe);
+//			}
 			//Need to add catch for ServerSocket Timeout
 			
 			
