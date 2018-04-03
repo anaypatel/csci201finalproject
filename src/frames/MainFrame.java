@@ -6,6 +6,9 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import client.Client;
+
 import javax.swing.JTextField;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -15,6 +18,9 @@ import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class MainFrame extends JFrame {
 
@@ -22,6 +28,14 @@ public class MainFrame extends JFrame {
 	private JTextField txtIpAddress;
 	private JTextField txtPort;
 	private JButton btnJoin;
+	//private String ipText = null;
+	//private String  portText = null;
+	boolean wait = true;
+			
+	
+	//boolean to see if login was successful
+	boolean connected = false;
+	
 	private final Action action = new SwingAction();
 
 	/**
@@ -61,7 +75,8 @@ public class MainFrame extends JFrame {
 		contentPane.setLayout(gbl_contentPane);
 		
 		txtIpAddress = new JTextField();
-		txtIpAddress.setText("IP Address");
+		txtIpAddress.setText("Enter IP");
+		
 		GridBagConstraints gbc_txtIpAddress = new GridBagConstraints();
 		gbc_txtIpAddress.insets = new Insets(0, 0, 5, 5);
 		gbc_txtIpAddress.fill = GridBagConstraints.HORIZONTAL;
@@ -71,7 +86,7 @@ public class MainFrame extends JFrame {
 		txtIpAddress.setColumns(10);
 		
 		txtPort = new JTextField();
-		txtPort.setText("Port");
+		txtPort.setText("Enter Port");
 		GridBagConstraints gbc_txtPort = new GridBagConstraints();
 		gbc_txtPort.insets = new Insets(0, 0, 5, 5);
 		gbc_txtPort.fill = GridBagConstraints.HORIZONTAL;
@@ -99,25 +114,34 @@ public class MainFrame extends JFrame {
 			putValue(SHORT_DESCRIPTION, "Join the game.");
 		}
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("hello");
-			
+			setWait(false);
+			System.out.println("meow");
 		}
 	}
 	
-	public JTextField getTxtIpAddress() {
-		return txtIpAddress;
+	
+	public String getTxtIpAddress() {
+		return txtIpAddress.getText();
 	}
 
-	public void setTxtIpAddress(JTextField txtIpAddress) {
-		this.txtIpAddress = txtIpAddress;
+	public void setTxtIpAddress() {
+		this.txtIpAddress.setText(null); 
 	}
 
-	public JTextField getTxtPort() {
-		return txtPort;
+	public String getTxtPort() {
+		return txtPort.getText();
 	}
 
-	public void setTxtPort(JTextField txtPort) {
-		this.txtPort = txtPort;
+	public void setTxtPort() {
+		this.txtPort.setText(null);
+	}
+	public void setWait(boolean condition)
+	{
+		this.wait = condition;
+	}
+	public boolean getWait()
+	{
+		return this.wait;
 	}
 	
 }
