@@ -53,15 +53,7 @@ public class Client extends Thread
 				while(true) 
 				{
 					
-					
-					
-					
-					
-					
-					
-					
-					
-					
+
 					boolean validCommand = false;
 					String line = scan.nextLine();
 					System.out.println("");
