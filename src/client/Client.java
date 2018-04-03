@@ -16,8 +16,10 @@ public class Client extends Thread
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 
+	
 	public Client()
 	{
+		
 		InputStreamReader isr = new InputStreamReader(System.in);
 		BufferedReader br = new BufferedReader(isr);
 		
