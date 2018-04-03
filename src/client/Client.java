@@ -1,5 +1,7 @@
 package client;
 
+import java.awt.EventQueue;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,6 +11,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import frames.MainFrame;
 import serializedMessages.MovementMessage;
 
 public class Client extends Thread
@@ -40,15 +44,36 @@ public class Client extends Thread
 				this.start();
 				Scanner scan = new Scanner(System.in);
 				
+				EventQueue.invokeLater(() -> {
+					MainFrame ex = new MainFrame();
+		            ex.setVisible(true);
+		        });
+				
 				//This is where we keep writing messages. 
 				while(true) 
 				{
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
 					boolean validCommand = false;
 					String line = scan.nextLine();
-					
-					//GameMessage gm = null;
-					
 					System.out.println("");
+					
+					
+					
+					
+					
+					
+					
+					
+					
 				}
 			}
 			catch(IOException ioe)
