@@ -8,22 +8,27 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import playerActions.Movement;
+import serializedMessages.GameMessage;
 import serializedMessages.MovementMessage;
+import sprites.Player;
 
 public class GameServer 
 {
 	private ArrayList<ServerThread> serverThreads;
 	private static int threadIDCounter = 0;
-	private ArrayList<Movement> movementTracker;
+	//private ArrayList<Movement> movementTracker;
+	//private ArrayList<Player> playerList;
 	
 	public GameServer(int port)
 	{
-		try {
+		try 
+		{
 			System.out.println("Binding to port: " + port);
 			ServerSocket ss = new ServerSocket(port);
 			System.out.println("Bound to port " + port);
 			serverThreads = new ArrayList<ServerThread>();
-			while (true) {
+			while (true) 
+			{
 				Socket s = ss.accept();
 				System.out.println("Connection from: " + s.getInetAddress());
 				ServerThread st = new ServerThread(s, this, threadIDCounter);
@@ -35,11 +40,23 @@ public class GameServer
 		}
 	}
 	
-	public void broadcast(MovementMessage mmsg, ServerThread st) 
+	public void broadcast(GameMessage gm, ServerThread st) 
 	{
-		if(mmsg != null)
+		if(gm != null)
 		{
-			System.out.println("X: " + mmsg.getX() + "  Y: " + mmsg.getY()); 
+			///For testing purposes to see if clients are sending server data!
+			 System.out.println("Message has been broadcasted");
+			
+			if(gm.getMessage().equals("movement"))
+			{
+				System.out.println("Movement from :" + gm.getID() + " X: " + gm.getX() + "  Y: " + gm.getY());
+			}
+			if(gm.getMessage().equals("assignid"))
+			{
+				System.out.println("Assignined Client ID : " + gm.getID());
+			}
+			
+			st.sendMessage(gm);
 		}
 	}
 	

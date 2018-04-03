@@ -1,7 +1,7 @@
 package client;
 
 import java.awt.EventQueue;
-
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,62 +13,92 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Scanner;
-
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import frames.Board;
 import frames.MainFrame;
+import serializedMessages.GameMessage;
 import serializedMessages.MovementMessage;
 
 public class Client extends Thread
 {
+	private int clientID;
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private MainFrame ex;
 	private Socket s;
+	private JPanel board;
+	GameMessage gm = null;
+	public boolean running = true;
 	
-	public Client() throws InvocationTargetException, InterruptedException
+	public Client()
 	{
 		
-		InputStreamReader isr = new InputStreamReader(System.in);
-		BufferedReader br = new BufferedReader(isr);
-		boolean connect = false;
-		EventQueue.invokeAndWait(() -> {
-			ex = new MainFrame();
-	        ex.setVisible(true);     
-	        });
-		while(true)
+		//InputStreamReader isr = new InputStreamReader(System.in);
+		//BufferedReader br = new BufferedReader(isr);
+		boolean connected = false;
+		s = new Socket();
+		EventQueue.invokeLater(() -> 
 		{
-			
-				
-				
-				while(!connect) 
+			ex = new MainFrame(this.s);
+	        ex.setVisible(true);    
+	    });
+		
+		while(!connected)
+		{
+			try {
+				if(s.getInetAddress().isReachable(10000))
 				{
-					//When commented out this line 46 it does not work...
-					System.out.println("Hello");
-					
-					if(!ex.getWait())
-					{
-						try
-						{
-							System.out.println("Trying to connect to " + ex.getTxtIpAddress() + ":" + ex.getTxtPort());
-							s = new Socket(ex.getTxtIpAddress(), Integer.parseInt(ex.getTxtPort()) );
-							connect = true;
-							ex.setWait(true);
-							System.out.println("Connected to " + ex.getTxtIpAddress() + ":" + ex.getTxtPort());
-							ois = new ObjectInputStream(s.getInputStream());
-							oos = new ObjectOutputStream(s.getOutputStream());
-							this.start();
-							}
-						catch(SocketException se)
-						{
-							System.out.println("From Client: " + se );
-							ex.setWait(true);
-						}
-						catch(IOException ioe)
-						{
-							System.out.println("Reading Input Error from Client Main: " + ioe);
-						}	
-					}
+					System.out.println("Connected! Socket Address: " + s.getInetAddress());
+					connected = true;
+					ois = new ObjectInputStream(s.getInputStream());
+					oos = new ObjectOutputStream(s.getOutputStream());
+					//Remove connection Panel and add game board panel
+			        ex.getContentPane().removeAll();
+			        board = new Board(this.s, ois, oos, this);
+			        ex.setContentPane(board);
+			        ex.setLocationRelativeTo(null);
+			        ex.setResizable(false);
+			        ex.getContentPane().revalidate();
+			        ex.repaint();
+			        ex.requestFocusInWindow();
+			        ex.addKeyListener(board.getKeyListeners()[0]);
+			        ex.setName("Game Board");
+				
+			        //Start client thread run
+			        this.start();
 				}
-		}	
+			} 
+			catch(SocketException se)
+			{
+				System.out.println("From Client: " + se );
+			}
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+			catch(NullPointerException npe)
+			{
+				//Do nothing
+			}
+		}
+		
+		/* Might not need to do anything here.*/
+		//while(true)
+		//{	
+		/* Might not need to do anything here.
+			try 
+			{
+				oos.writeObject(gm);
+				oos.flush();
+			}
+			catch (IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		*/
+		//}	
 	}
 	
 	public void run()
@@ -77,7 +107,17 @@ public class Client extends Thread
 		{
 			while(true) 
 			{
-				MovementMessage gm = (MovementMessage)ois.readObject();
+				GameMessage gm = (GameMessage)ois.readObject();
+				
+				//Assign ID
+				System.out.println("Message Received: " + gm.getMessage());
+				
+				if(gm.getProtocol().equalsIgnoreCase("assignid"))
+				{
+					this.clientID = Integer.parseInt(gm.getMessage());
+					System.out.println("Assigned Client ID: " + this.clientID);
+				}
+
 			}
 		}
 		catch (IOException ioe) 
