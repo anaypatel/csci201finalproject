@@ -67,8 +67,9 @@ public class Board extends JPanel implements ActionListener
 	private void doDrawing(Graphics g) 
 	{
 		Graphics2D g2d = (Graphics2D) g;
+		//g2d.setBackground(Color.black);
 		g2d.drawImage(player.getImage(),player.getX(), player.getY(), this);
-		
+		//sg2d.clearRect(800, 600, 800, 600);
 	}
 
 

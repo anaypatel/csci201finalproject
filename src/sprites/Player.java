@@ -8,8 +8,8 @@ public class Player
 {
 	private int mx;
 	private int my;
-	private int x = 20;
-	private int y = 30;
+	private int x = 300;
+	private int y = 300;
 	private int w;
 	private int h;
 	private Image image;
@@ -47,7 +47,7 @@ public class Player
 	}
 	public int getHeight()
 	{
-		return this.y;
+		return this.h;
 	}
 	public Image getImage()
 	{
