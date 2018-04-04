@@ -29,7 +29,7 @@ public class Client extends Thread
 	private ObjectOutputStream oos;
 	private MainFrame ex;
 	private Socket s;
-	private JPanel board;
+	private Board board;
 	GameMessage gm = null;
 	public boolean running = true;
 	
@@ -132,7 +132,7 @@ public class Client extends Thread
 					{
 						int currentID = entry.getKey();
 						board.player = entry.getValue();
-						repaint(board.player.getX()-1, board.player.getY()-1,
+						board.repaint(board.player.getX()-1, board.player.getY()-1,
 								board.player.getWidth()+2, board.player.getHeight()+2);
 					}
 					
