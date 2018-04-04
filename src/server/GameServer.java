@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import playerActions.Movement;
@@ -23,6 +24,7 @@ public class GameServer
 	
 	public GameServer(int port)
 	{
+		playerMap = new HashMap<Integer, Player>();
 		try 
 		{
 			System.out.println("Binding to port: " + port);
@@ -57,7 +59,7 @@ public class GameServer
 			{
 				System.out.println("Assigned Client ID : " + gm.getID());
 			}
-			if(gm.getProtocol() ==  "addplayer"){
+			if(gm.getProtocol().equals("addplayer")){
 				playerMap.put(gm.getID(), gm.player);
 				System.out.println("Added player to map");
 				//playerMap.get(gm.getID().move etc etc) possibly alter player position for testing
