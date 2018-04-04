@@ -2,10 +2,13 @@ package sprites;
 
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
+
 import javax.swing.ImageIcon;
 
-public class Player 
+public class Player implements Serializable
 {
+	public static final long serialVersionUID = 1;
 	private int mx;
 	private int my;
 	private int x = 300;
