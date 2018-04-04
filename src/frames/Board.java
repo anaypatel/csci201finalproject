@@ -45,7 +45,9 @@ public class Board extends JPanel implements ActionListener
 		this.s = s;
 		this.c = c;
 		
+		/*
 		gm = new GameMessage(c.getID(), "addplayer", "");
+		
 		try 
 		{
 			oos.writeObject(gm);
@@ -63,8 +65,12 @@ public class Board extends JPanel implements ActionListener
 		
 		if(gm.getProtocol().equals("addedplayer"))
 		{
+			
 			initBoard();
 		}
+		*/
+		
+		initBoard();
 	}
 	
 	
