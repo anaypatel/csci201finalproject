@@ -58,21 +58,21 @@ public class Player
 	{
 		int key = e.getKeyCode();
 		
-		if(key == KeyEvent.VK_LEFT)
+		if(key == KeyEvent.VK_A)
 		{
 			this.mx = -2;
 		}
-		if(key == KeyEvent.VK_RIGHT)
+		if(key == KeyEvent.VK_D)
 		{
 			this.mx = 2;
 		}
 		
-		if(key == KeyEvent.VK_UP)
+		if(key == KeyEvent.VK_W)
 		{
 			this.my = -2;
 		}
 		
-		if(key == KeyEvent.VK_DOWN)
+		if(key == KeyEvent.VK_S)
 		{
 			this.my = 2;
 		}
@@ -84,21 +84,21 @@ public class Player
 	{
 		int key = e.getKeyCode();
 		
-		if(key == KeyEvent.VK_LEFT)
+		if(key == KeyEvent.VK_A)
 		{
 			this.mx =0;
 		}
-		if(key == KeyEvent.VK_RIGHT)
+		if(key == KeyEvent.VK_D)
 		{
 			this.mx = 0;
 		}
 		
-		if(key == KeyEvent.VK_UP)
+		if(key == KeyEvent.VK_W)
 		{
 			this.my = 0;
 		}
 		
-		if(key == KeyEvent.VK_DOWN)
+		if(key == KeyEvent.VK_S)
 		{
 			this.my = 0;
 		}
