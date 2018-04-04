@@ -3,6 +3,7 @@ package frames;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,6 +35,7 @@ public class Board extends JPanel implements ActionListener
 	private Socket s;
 	private GameMessage gm;
 	private Client c;
+	private Image image;
 	
 	public Board(Socket s, ObjectInputStream ois, ObjectOutputStream oos, Client c)
 	{
@@ -61,15 +63,17 @@ public class Board extends JPanel implements ActionListener
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
+		g.setColor(Color.BLACK);
+		//g.fillOval(player.getX(), player.getY(), 200,200);
 		doDrawing(g);
 		Toolkit.getDefaultToolkit().sync();
 	}
 	private void doDrawing(Graphics g) 
 	{
 		Graphics2D g2d = (Graphics2D) g;
-		//g2d.setBackground(Color.black);
+		g2d.setClip(player.getX()+2, player.getY(), 43,90);
 		g2d.drawImage(player.getImage(),player.getX(), player.getY(), this);
-		//sg2d.clearRect(800, 600, 800, 600);
+		
 	}
 
 

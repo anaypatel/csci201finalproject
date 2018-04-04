@@ -29,6 +29,7 @@ public class Player
 	
 	public void move()
 	{
+		//Need to set boundaries on border later!
 		this.x = this.x + mx;
 		this.y = this.y + my;
 	}
