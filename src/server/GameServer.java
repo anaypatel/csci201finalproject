@@ -47,11 +47,11 @@ public class GameServer
 			///For testing purposes to see if clients are sending server data!
 			 System.out.println("Message has been broadcasted");
 			
-			if(gm.getMessage().equals("movement"))
+			if(gm.getProtocol().equals("movement"))
 			{
 				System.out.println("Movement from :" + gm.getID() + " X: " + gm.getX() + "  Y: " + gm.getY());
 			}
-			if(gm.getMessage().equals("assignid"))
+			if(gm.getProtocol().equals("assignid"))
 			{
 				System.out.println("Assignined Client ID : " + gm.getID());
 			}
