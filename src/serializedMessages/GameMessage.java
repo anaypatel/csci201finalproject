@@ -1,6 +1,9 @@
 package serializedMessages;
 
 import java.io.Serializable;
+import java.util.Map;
+
+import sprites.Player;
 
 public class GameMessage  implements Serializable 
 {
@@ -9,6 +12,8 @@ public class GameMessage  implements Serializable
 	private int clientID;
 	private String protocol;
 	private String message;
+	public Player player;
+	public Map<Integer, Player> playerMap;
 	
 	
 	public GameMessage(int clientID, String protocol, String message)

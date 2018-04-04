@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Map;
 
 import playerActions.Movement;
 import serializedMessages.GameMessage;
@@ -16,6 +17,7 @@ public class GameServer
 {
 	private ArrayList<ServerThread> serverThreads;
 	private static int threadIDCounter = 0;
+	private Map<Integer, Player> playerMap;
 	//private ArrayList<Movement> movementTracker;
 	//private ArrayList<Player> playerList;
 	
@@ -53,10 +55,19 @@ public class GameServer
 			}
 			if(gm.getProtocol().equals("assignid"))
 			{
-				System.out.println("Assignined Client ID : " + gm.getID());
+				System.out.println("Assigned Client ID : " + gm.getID());
+			}
+			if(gm.getProtocol() ==  "addplayer"){
+				playerMap.put(gm.getID(), gm.player);
+				System.out.println("Added player to map");
+				//playerMap.get(gm.getID().move etc etc) possibly alter player position for testing
+				GameMessage message = new GameMessage(st.getSID(), "addedplayer", "hi");
+				message.playerMap = playerMap;
+				st.sendMessage(message);
+				System.out.println("Sent updated player map to player: " + gm.getID());
 			}
 			
-			st.sendMessage(gm);
+			//st.sendMessage(gm);
 		}
 	}
 	
