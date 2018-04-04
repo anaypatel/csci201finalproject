@@ -130,6 +130,11 @@ public class Client extends Thread
 		}
 	}
 	
+	public int getID()
+	{
+		return this.clientID;
+	}
+	
 	public static void main(String [] args) throws InvocationTargetException, InterruptedException
 	{
 		Client gc = new Client();

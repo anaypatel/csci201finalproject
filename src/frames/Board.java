@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -43,7 +44,27 @@ public class Board extends JPanel implements ActionListener
 		this.oos = oos;
 		this.s = s;
 		this.c = c;
-		initBoard();
+		
+		gm = new GameMessage(c.getID(), "addplayer", "");
+		try 
+		{
+			oos.writeObject(gm);
+			oos.flush();
+			gm = (GameMessage)ois.readObject();
+			
+		} catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(gm.getProtocol().equals("addedplayer"))
+		{
+			initBoard();
+		}
 	}
 	
 	
@@ -81,6 +102,8 @@ public class Board extends JPanel implements ActionListener
 	public void actionPerformed(ActionEvent e) 
 	{
 		move();
+		
+		
 	}
 
 	private void move()
