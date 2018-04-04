@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -27,7 +30,7 @@ public class Board extends JPanel implements ActionListener
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Player player;
+	public Player player;
 	private Timer timer;
 	private final int DELAY = 10;
 	
@@ -37,6 +40,7 @@ public class Board extends JPanel implements ActionListener
 	private GameMessage gm;
 	private Client c;
 	private Image image;
+	//private Map<Integer, Player> playerMap;
 	
 	public Board(Socket s, ObjectInputStream ois, ObjectOutputStream oos, Client c)
 	{
@@ -45,13 +49,15 @@ public class Board extends JPanel implements ActionListener
 		this.s = s;
 		this.c = c;
 		
-		/*
+		player = new Player();
 		gm = new GameMessage(c.getID(), "addplayer", "");
+		gm.player = player;
 		
 		try 
 		{
 			oos.writeObject(gm);
 			oos.flush();
+			
 			gm = (GameMessage)ois.readObject();
 			
 		} catch (IOException e) 
@@ -64,11 +70,21 @@ public class Board extends JPanel implements ActionListener
 		}
 		
 		if(gm.getProtocol().equals("addedplayer"))
-		{
-			
+		{			
+			System.out.println("Player Added Response Received: " + gm.getID());
 			initBoard();
+			//playerMap = gm.playerMap;
+			
+			for(Map.Entry<Integer,Player> entry : gm.playerMap.entrySet())
+			{
+				int currentID = entry.getKey();
+				player = entry.getValue();
+				repaint(player.getX()-1, player.getY()-1,
+					player.getWidth()+2, player.getHeight()+2);
+				
+			}
 		}
-		*/
+		
 		
 		initBoard();
 	}
@@ -98,9 +114,13 @@ public class Board extends JPanel implements ActionListener
 	private void doDrawing(Graphics g) 
 	{
 		Graphics2D g2d = (Graphics2D) g;
+		
+		
 		g2d.setClip(player.getX()+2, player.getY(), 43,90);
 		g2d.drawImage(player.getImage(),player.getX(), player.getY(), this);
 		
+		
+		//Iterate through whole map and draw everyone from the array.
 	}
 
 
@@ -115,8 +135,11 @@ public class Board extends JPanel implements ActionListener
 	private void move()
 	{
 		player.move();
-		repaint(player.getX()-1, player.getY()-1,
-				player.getWidth()+2, player.getHeight()+2);
+		
+		//repaint(player.getX()-1, player.getY()-1,
+				//player.getWidth()+2, player.getHeight()+2);
+		gm = new GameMessage(c.getID(), "movement",player.getX()-1, player.getY()-1);
+		
 	}
 	public class TAdapter extends KeyAdapter 
 	{

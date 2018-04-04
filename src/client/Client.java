@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,6 +20,7 @@ import frames.Board;
 import frames.MainFrame;
 import serializedMessages.GameMessage;
 import serializedMessages.MovementMessage;
+import sprites.Player;
 
 public class Client extends Thread
 {
@@ -30,6 +32,8 @@ public class Client extends Thread
 	private JPanel board;
 	GameMessage gm = null;
 	public boolean running = true;
+	
+	
 	
 	public Client()
 	{
@@ -116,6 +120,23 @@ public class Client extends Thread
 				{
 					this.clientID = Integer.parseInt(gm.getMessage());
 					System.out.println("Assigned Client ID: " + this.clientID);
+				}
+				if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
+				{
+					//For through whole map. Repaint all characters in the map.
+					//board.repaint();
+					
+					
+					
+					for(Map.Entry<Integer,Player> entry : gm.playerMap.entrySet())
+					{
+						int currentID = entry.getKey();
+						board.player = entry.getValue();
+						repaint(board.player.getX()-1, board.player.getY()-1,
+								board.player.getWidth()+2, board.player.getHeight()+2);
+					}
+					
+					
 				}
 
 			}
