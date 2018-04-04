@@ -133,7 +133,7 @@ public class Client extends Thread
 						int currentID = entry.getKey();
 						board.player = entry.getValue();
 						board.repaint(board.player.getX()-1, board.player.getY()-1,
-								board.player.getWidth()+2, board.player.getHeight()+2);
+								board.getWidth()+2, board.getHeight()+2);
 					}
 					
 					

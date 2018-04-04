@@ -13,22 +13,15 @@ public class Player implements Serializable
 	private int my;
 	private int x = 300;
 	private int y = 300;
-	private int w;
-	private int h;
-	private Image image;
+	
+	//private Image image;
 	
 	public Player()
 	{
-		loadImage();
+		
 	}
 	
-	private void loadImage()
-	{
-		ImageIcon ic = new ImageIcon("src/resources/player.png");
-		this.image = ic.getImage();
-		this.w = image.getWidth(null);
-		this.h= image.getHeight(null);
-	}
+	
 	
 	public void move()
 	{
@@ -45,18 +38,11 @@ public class Player implements Serializable
 	{
 		return this.y;
 	}
-	public int getWidth()
-	{
-		return this.w;
-	}
-	public int getHeight()
-	{
-		return this.h;
-	}
-	public Image getImage()
-	{
-		return this.image;
-	}
+		
+//	public Image getImage()
+//	{
+//		return this.image;
+//	}
 	
 	public void keyPressed(KeyEvent e)
 	{

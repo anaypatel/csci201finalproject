@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -34,6 +35,9 @@ public class Board extends JPanel implements ActionListener
 	private Timer timer;
 	private final int DELAY = 10;
 	
+	
+	private int w;
+	private int h;
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private Socket s;
@@ -80,7 +84,7 @@ public class Board extends JPanel implements ActionListener
 				int currentID = entry.getKey();
 				player = entry.getValue();
 				repaint(player.getX()-1, player.getY()-1,
-					player.getWidth()+2, player.getHeight()+2);
+					w+2, h+2);
 				
 			}
 		}
@@ -89,6 +93,13 @@ public class Board extends JPanel implements ActionListener
 		initBoard();
 	}
 	
+	private void loadImage()
+	{
+		ImageIcon ic = new ImageIcon("src/resources/player.png");
+		this.image = ic.getImage();
+		this.w = image.getWidth(null);
+		this.h= image.getHeight(null);
+	}
 	
 	private void initBoard()
 	{
@@ -117,7 +128,7 @@ public class Board extends JPanel implements ActionListener
 		
 		
 		g2d.setClip(player.getX()+2, player.getY(), 43,90);
-		g2d.drawImage(player.getImage(),player.getX(), player.getY(), this);
+		g2d.drawImage(image,player.getX(), player.getY(), this);
 		
 		
 		//Iterate through whole map and draw everyone from the array.
@@ -155,6 +166,16 @@ public class Board extends JPanel implements ActionListener
         	player.keyPressed(e);
         }
 	  }
+	
+	public int getWidth()
+	{
+		return this.w;
+	}
+	
+	public int getHeight()
+	{
+		return this.h;
+	}
 	
 }
 
