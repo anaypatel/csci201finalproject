@@ -37,19 +37,21 @@ public class Board extends JPanel implements ActionListener
 	
 	
 	private int w;
-	private int h;
+	private int h; 
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private Socket s;
 	private GameMessage gm;
 	private Client c;
 	private Image image;
-	//private Map<Integer, Player> playerMap;
+	private Map<Integer, Player> playerMap;
 	
 	public Board(Socket s, ObjectInputStream ois, ObjectOutputStream oos, Client c)
 	{
+		//loadImage(this.image);
+
 		this.ois = ois;
-		this.oos = oos;
+		this.oos = oos; 
 		this.s = s;
 		this.c = c;
 		
@@ -63,7 +65,7 @@ public class Board extends JPanel implements ActionListener
 			oos.flush();
 			
 			gm = (GameMessage)ois.readObject();
-			
+			 
 		} catch (IOException e) 
 		{
 			// TODO Auto-generated catch block
@@ -73,28 +75,38 @@ public class Board extends JPanel implements ActionListener
 			e.printStackTrace();
 		}
 		
+		
+		
 		if(gm.getProtocol().equals("addedplayer"))
 		{			
+			initBoard();
+			
 			System.out.println("Player Added Response Received: " + gm.getID());
 			initBoard();
-			//playerMap = gm.playerMap;
+			playerMap = gm.playerMap;
 			
 			for(Map.Entry<Integer,Player> entry : gm.playerMap.entrySet())
 			{
 				int currentID = entry.getKey();
+				
 				player = entry.getValue();
 				repaint(player.getX()-1, player.getY()-1,
-					w+2, h+2);
+						w+2, h+2);
+				System.out.println("Current Map ID: " + currentID);
 				
 			}
 		}
 		
 		
-		initBoard();
+		
+		
+		//image = new Image();
+				
 	}
 	
-	private void loadImage()
+	private void loadImage(Image image)
 	{
+		System.out.println("Testing from Load image");
 		ImageIcon ic = new ImageIcon("src/resources/player.png");
 		this.image = ic.getImage();
 		this.w = image.getWidth(null);
@@ -103,11 +115,12 @@ public class Board extends JPanel implements ActionListener
 	
 	private void initBoard()
 	{
+		System.out.println("Initializinig board.");
 		addKeyListener(new TAdapter());
 		setFocusable(true);
 		setBackground(Color.black);
 		setDoubleBuffered(true);
-		player = new Player();
+		//player = new Player();
 		timer = new Timer(DELAY,this);
 		timer.start();
 		
@@ -117,6 +130,7 @@ public class Board extends JPanel implements ActionListener
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
+		System.out.println("Hello1");
 		g.setColor(Color.BLACK);
 		//g.fillOval(player.getX(), player.getY(), 200,200);
 		doDrawing(g);
@@ -125,7 +139,7 @@ public class Board extends JPanel implements ActionListener
 	private void doDrawing(Graphics g) 
 	{
 		Graphics2D g2d = (Graphics2D) g;
-		
+		System.out.println("Hello122");
 		
 		g2d.setClip(player.getX()+2, player.getY(), 43,90);
 		g2d.drawImage(image,player.getX(), player.getY(), this);
@@ -146,10 +160,31 @@ public class Board extends JPanel implements ActionListener
 	private void move()
 	{
 		player.move();
-		
+		//System.out.println("movement made");
 		//repaint(player.getX()-1, player.getY()-1,
 				//player.getWidth()+2, player.getHeight()+2);
+		
+	
+		if(playerMap != null)
+		{
+		for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+		{
+			int currentID = entry.getKey();
+			player = entry.getValue();
+			repaint(player.getX()-1, player.getY()-1,
+					w+2, h+2);
+			System.out.println("Current Map ID: " + currentID);
+		}
+		}
 		gm = new GameMessage(c.getID(), "movement",player.getX()-1, player.getY()-1);
+		try {
+			oos.writeObject(gm);
+			oos.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
 		
 	}
 	public class TAdapter extends KeyAdapter 

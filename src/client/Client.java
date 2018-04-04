@@ -109,7 +109,7 @@ public class Client extends Thread
 	{
 		try 
 		{
-			while(true) 
+			while(true)   
 			{
 				GameMessage gm = (GameMessage)ois.readObject();
 				
