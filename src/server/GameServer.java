@@ -72,11 +72,6 @@ public class GameServer
 				//System.out.println("Assigned Client ID : " + gm.getID());
 				st.sendMessage(gm);
 			}
-			
-			
-			
-			
-			
 		}
 	}
 	
