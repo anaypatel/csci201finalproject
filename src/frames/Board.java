@@ -3,215 +3,115 @@ package frames;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-
 import client.Client;
 import serializedMessages.GameMessage;
+import server.Movement;
 import sprites.Player;
 
 public class Board extends JPanel implements ActionListener
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	public Player player;
 	private Timer timer;
 	private final int DELAY = 10;
-	
-	
-	private int w;
-	private int h; 
-	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
-	private Socket s;
 	private GameMessage gm;
 	private Client c;
-	private Image image;
-	private Map<Integer, Player> playerMap;
-	
-	public Board(Socket s, ObjectInputStream ois, ObjectOutputStream oos, Client c)
+	public Board(Socket s, ObjectOutputStream oos, Client c)
 	{
-		//loadImage(this.image);
-
-		this.ois = ois;
-		this.oos = oos; 
-		this.s = s;
+		this.oos = oos;
 		this.c = c;
-		
-		player = new Player();
-		gm = new GameMessage(c.getID(), "addplayer", "");
-		gm.player = player;
-		
-		try 
-		{
-			oos.writeObject(gm);
-			oos.flush();
-			
-			gm = (GameMessage)ois.readObject();
-			 
-		} catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-		if(gm.getProtocol().equals("addedplayer"))
-		{			
-			initBoard();
-			
-			System.out.println("Player Added Response Received: " + gm.getID());
-			initBoard();
-			playerMap = gm.playerMap;
-			
-			for(Map.Entry<Integer,Player> entry : gm.playerMap.entrySet())
-			{
-				int currentID = entry.getKey();
-				
-				player = entry.getValue();
-				repaint(player.getX()-1, player.getY()-1,
-						w+2, h+2);
-				System.out.println("Current Map ID: " + currentID);
-				
-			}
-		}
-		
-		
-		
-		
-		//image = new Image();
-				
-	}
-	
-	private void loadImage(Image image)
-	{
-		System.out.println("Testing from Load image");
-		ImageIcon ic = new ImageIcon("src/resources/player.png");
-		this.image = ic.getImage();
-		this.w = image.getWidth(null);
-		this.h= image.getHeight(null);
+		initBoard();
 	}
 	
 	private void initBoard()
 	{
-		System.out.println("Initializinig board.");
 		addKeyListener(new TAdapter());
 		setFocusable(true);
 		setBackground(Color.black);
 		setDoubleBuffered(true);
-		//player = new Player();
+		player = new Player();
 		timer = new Timer(DELAY,this);
-		timer.start();
-		
+		timer.start();	
 	}
 	
 	@Override
 	public void paintComponent(Graphics g)
 	{
+		//System.out.println("Paint Component Call");
 		super.paintComponent(g);
-		System.out.println("Hello1");
 		g.setColor(Color.BLACK);
-		//g.fillOval(player.getX(), player.getY(), 200,200);
 		doDrawing(g);
 		Toolkit.getDefaultToolkit().sync();
 	}
 	private void doDrawing(Graphics g) 
 	{
 		Graphics2D g2d = (Graphics2D) g;
-		System.out.println("Hello122");
-		
-		g2d.setClip(player.getX()+2, player.getY(), 43,90);
-		g2d.drawImage(image,player.getX(), player.getY(), this);
-		
-		
-		//Iterate through whole map and draw everyone from the array.
-	}
 
+		for(Map.Entry<Integer,Movement> entry : c.playerMap.entrySet())
+		{
+			//System.out.println("Drawing " + entry.getValue().clientID + "  " + entry.getValue().x + "  " + entry.getValue().y);
+			//int currentID = entry.getKey();
+			//System.out.println("ID: " + currentID + "  drawn");
+			g2d.setClip(entry.getValue().x+2, entry.getValue().y, 43,90);
+			g2d.drawImage(player.getImage(),entry.getValue().x, entry.getValue().y, this);
+		}
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		move();
-		
-		
+		move();	
 	}
-
 	private void move()
 	{
-		player.move();
-		//System.out.println("movement made");
-		//repaint(player.getX()-1, player.getY()-1,
-				//player.getWidth()+2, player.getHeight()+2);
-		
-	
-		if(playerMap != null)
-		{
-		for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
-		{
-			int currentID = entry.getKey();
-			player = entry.getValue();
-			repaint(player.getX()-1, player.getY()-1,
-					w+2, h+2);
-			System.out.println("Current Map ID: " + currentID);
-		}
-		}
-		gm = new GameMessage(c.getID(), "movement",player.getX()-1, player.getY()-1);
-		try {
-			oos.writeObject(gm);
-			oos.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	
-		
+		player.move();	
 	}
 	public class TAdapter extends KeyAdapter 
 	{
         @Override
         public void keyReleased(KeyEvent e) 
         {
+        	//System.out.println("KeyReleased: " + player.getX() + "  "  + player.getY());
             player.keyReleased(e);
+            gm = new GameMessage(c.getID(), "movement", player.getX(), player.getY());     	
+            try 
+            {
+				oos.flush();
+			 	oos.writeObject(gm);
+			} catch (IOException e1) 
+            {
+				e1.printStackTrace();
+			}      	
         }
 
         @Override
         public void keyPressed(KeyEvent e) 
         {
+        	//System.out.println("KeyPressed: " + player.getX() + "  "  + player.getY());
         	player.keyPressed(e);
+        	gm = new GameMessage(c.getID(), "movement",player.getX(), player.getY());
+        	try 
+        	{
+				oos.flush();
+			 	oos.writeObject(gm);
+			} catch (IOException e1) 
+        	{
+				e1.printStackTrace();
+			}
         }
-	  }
-	
-	public int getWidth()
-	{
-		return this.w;
-	}
-	
-	public int getHeight()
-	{
-		return this.h;
-	}
-	
+      }
 }
 
 

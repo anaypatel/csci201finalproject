@@ -14,8 +14,9 @@ public class ServerThread extends Thread
 	private ObjectInputStream ois;
 	private int id;
 	private boolean inGame = false;
-	
+	public boolean ready = false;
 	private GameServer server;
+	
 	public ServerThread(Socket s, GameServer _server, int _id)
 	{
 		try
@@ -37,6 +38,7 @@ public class ServerThread extends Thread
 	{
 		try
 		{
+			oos.reset();
 			oos.writeObject(gm);
 			oos.flush();
 		}
@@ -55,15 +57,17 @@ public class ServerThread extends Thread
 	{
 		try 
 		{
+			//Send first message to assign ID to a client. ID given by GameServer as thread counter
 			GameMessage assignID = new GameMessage(this.getSID(), "assignid", String.valueOf(this.getSID()));
 			server.broadcast(assignID, this);
 			
-			//Receive messages from Client after a flush has happened, then broadcast it. 
-		
-			while(true) 
+			GameMessage addPlayer = new GameMessage(this.getSID(), "addplayer", "IconType");
+			server.broadcast(addPlayer, this);
+			while(true)
 			{
 				GameMessage gm = (GameMessage)ois.readObject();
-				server.broadcast(gm, this);
+				//System.out.println("Message Received in ServerThread : " + gm.getProtocol());
+				server.broadcast(gm, this);	
 			}
 		} 
 		catch (IOException ioe) 

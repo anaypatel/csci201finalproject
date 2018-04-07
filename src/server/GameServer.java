@@ -8,26 +8,22 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import playerActions.Movement;
+import server.Movement;
 import serializedMessages.GameMessage;
-import serializedMessages.MovementMessage;
-import sprites.Player;
 
 public class GameServer 
 {
 	private ArrayList<ServerThread> serverThreads;
 	private static int threadIDCounter = 0;
-	private Map<Integer, Player> playerMap;
-	//private ArrayList<Movement> movementTracker;
-	//private ArrayList<Player> playerList;
+	private Map<Integer, Movement> playerMap;
 	
 	public GameServer(int port)
 	{
-		playerMap = new HashMap<Integer, Player>();
+		playerMap = new HashMap<Integer, Movement>();
 		try 
 		{
 			System.out.println("Binding to port: " + port);
+			@SuppressWarnings("resource")
 			ServerSocket ss = new ServerSocket(port);
 			System.out.println("Bound to port " + port);
 			serverThreads = new ArrayList<ServerThread>();
@@ -48,28 +44,39 @@ public class GameServer
 	{
 		if(gm != null)
 		{
-			///For testing purposes to see if clients are sending server data!
-			 System.out.println("Message has been broadcasted");
-			
+
 			if(gm.getProtocol().equals("movement"))
 			{
-				System.out.println("Movement from :" + gm.getID() + " X: " + gm.getX() + "  Y: " + gm.getY());
+				playerMap.get(gm.getID()).x = gm.getX();
+				playerMap.get(gm.getID()).y = gm.getY();
+				gm = new GameMessage(gm.getID(), "movementupdate", "");
+				gm.playerMap = playerMap;
+
+				for(ServerThread st1 : serverThreads)
+				{
+					//System.out.println("Sent Message to " + st1.getSID());
+					st1.sendMessage(gm);
+				}
 			}
-			if(gm.getProtocol().equals("assignid"))
+			else if(gm.getProtocol().equalsIgnoreCase("addplayer"))
 			{
-				System.out.println("Assigned Client ID : " + gm.getID());
+				//System.out.println("Entered Added Player Server");
+				Movement m = new Movement(gm.getID(), 300,500);
+				playerMap.put(st.getSID(), m);
+				gm = new GameMessage(gm.getID(), "addedplayer", "");
+				gm.playerMap = playerMap;
+				st.sendMessage(gm);
 			}
-			if(gm.getProtocol().equals("addplayer")){
-				playerMap.put(gm.getID(), gm.player);
-				System.out.println("Added player to map");
-				//playerMap.get(gm.getID().move etc etc) possibly alter player position for testing
-				GameMessage message = new GameMessage(st.getSID(), "addedplayer", "hi");
-				message.playerMap = playerMap;
-				st.sendMessage(message);
-				System.out.println("Sent updated player map to player: " + gm.getID());
+			else if(gm.getProtocol().equals("assignid"))
+			{
+				//System.out.println("Assigned Client ID : " + gm.getID());
+				st.sendMessage(gm);
 			}
 			
-			//st.sendMessage(gm);
+			
+			
+			
+			
 		}
 	}
 	
@@ -92,6 +99,7 @@ public class GameServer
 
 			System.out.println("Success!");
 
+			@SuppressWarnings("unused")
 			GameServer gr = new GameServer(port);
 
 		} catch (IOException ioe) 

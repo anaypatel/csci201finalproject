@@ -2,44 +2,33 @@ package client;
 
 import java.awt.EventQueue;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Scanner;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import frames.Board;
 import frames.MainFrame;
 import serializedMessages.GameMessage;
-import serializedMessages.MovementMessage;
-import sprites.Player;
+import server.Movement;
 
 public class Client extends Thread
 {
-	private int clientID;
+	public int clientID;
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private MainFrame ex;
 	private Socket s;
 	private Board board;
-	GameMessage gm = null;
+	public GameMessage gm = null;
 	public boolean running = true;
 	
-	
+	public Map<Integer, Movement> playerMap;
 	
 	public Client()
 	{
-		
-		//InputStreamReader isr = new InputStreamReader(System.in);
-		//BufferedReader br = new BufferedReader(isr);
 		boolean connected = false;
 		s = new Socket();
 		EventQueue.invokeLater(() -> 
@@ -50,16 +39,41 @@ public class Client extends Thread
 		
 		while(!connected)
 		{
-			try {
+			try 
+			{
 				if(s.getInetAddress().isReachable(10000))
 				{
 					System.out.println("Connected! Socket Address: " + s.getInetAddress());
 					connected = true;
 					ois = new ObjectInputStream(s.getInputStream());
 					oos = new ObjectOutputStream(s.getOutputStream());
+					
 					//Remove connection Panel and add game board panel
+					//This initializes the game board.
 			        ex.getContentPane().removeAll();
-			        board = new Board(this.s, ois, oos, this);
+			        board = new Board(this.s, oos, this);
+			        
+			        try 
+			        {
+						gm = (GameMessage)ois.readObject();
+						if(gm.getProtocol().equalsIgnoreCase("assignid"))
+						{
+							this.clientID = Integer.parseInt(gm.getMessage());
+							System.out.println("Assigned Client ID: " + this.clientID);
+						}
+						
+						gm = (GameMessage)ois.readObject(); 	 
+						if(gm.getProtocol().equalsIgnoreCase("addedPlayer"))
+						{
+							playerMap = gm.playerMap;
+							board.repaint();	
+						}
+
+					} 
+			        catch (ClassNotFoundException e1) 
+			        {
+						e1.printStackTrace();
+					}
 			        ex.setContentPane(board);
 			        ex.setLocationRelativeTo(null);
 			        ex.setResizable(false);
@@ -67,9 +81,9 @@ public class Client extends Thread
 			        ex.repaint();
 			        ex.requestFocusInWindow();
 			        ex.addKeyListener(board.getKeyListeners()[0]);
+			        KeyListener[] e = ex.getKeyListeners();
 			        ex.setName("Game Board");
-				
-			        //Start client thread run
+			        System.out.println("Started Client thread");
 			        this.start();
 				}
 			} 
@@ -86,68 +100,48 @@ public class Client extends Thread
 				//Do nothing
 			}
 		}
-		
-		/* Might not need to do anything here.*/
+
+		//Add board Key listener right here 
 		//while(true)
-		//{	
-		/* Might not need to do anything here.
-			try 
-			{
-				oos.writeObject(gm);
-				oos.flush();
-			}
-			catch (IOException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		*/
-		//}	
+		//{}
 	}
 	
 	public void run()
 	{
-		try 
+		while(true)
 		{
-			while(true)   
+			try 
 			{
 				GameMessage gm = (GameMessage)ois.readObject();
+				//System.out.println("Message Received in Client : " + gm.getProtocol());
 				
-				//Assign ID
-				System.out.println("Message Received: " + gm.getMessage());
-				
-				if(gm.getProtocol().equalsIgnoreCase("assignid"))
-				{
-					this.clientID = Integer.parseInt(gm.getMessage());
-					System.out.println("Assigned Client ID: " + this.clientID);
-				}
 				if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
 				{
-					//For through whole map. Repaint all characters in the map.
-					//board.repaint();
-					
-					
-					
-					for(Map.Entry<Integer,Player> entry : gm.playerMap.entrySet())
+					/*System.out.println("movement update on client: MSG: " + gm.getMessage());
+					for(Map.Entry<Integer,Movement> entry : gm.playerMap.entrySet())
 					{
-						int currentID = entry.getKey();
-						board.player = entry.getValue();
-						board.repaint(board.player.getX()-1, board.player.getY()-1,
-								board.getWidth()+2, board.getHeight()+2);
+						System.out.println("values in client before overwrite " + entry.getValue().clientID + "  " 
+						+ entry.getValue().x + "  " + entry.getValue().y);	
 					}
-					
-					
+					 */
+					playerMap = gm.playerMap;
+					/*for(Map.Entry<Integer,Movement> entry : playerMap.entrySet())
+					{	
+						System.out.println("values in client after overwrite " + entry.getValue().clientID + "  " 
+						+ entry.getValue().x + "  " + entry.getValue().y);	
+					}
+					*/
+					board.repaint();
 				}
-
-			}
-		}
-		catch (IOException ioe) 
-		{
-			System.out.println("ioe in ChatClient.run(): " + ioe.getMessage());
-		} 
-		catch (ClassNotFoundException cnfe) 
-		{
-			System.out.println("cnfe: " + cnfe.getMessage());
+			} catch (ClassNotFoundException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
 		}
 	}
 	

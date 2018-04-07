@@ -3,6 +3,7 @@ package serializedMessages;
 import java.io.Serializable;
 import java.util.Map;
 
+import server.Movement;
 import sprites.Player;
 
 public class GameMessage  implements Serializable 
@@ -13,8 +14,8 @@ public class GameMessage  implements Serializable
 	private String protocol;
 	private String message;
 	public Player player;
-	public Map<Integer, Player> playerMap;
-	
+	public Map<Integer, Movement> playerMap;
+	public Movement m;
 	
 	public GameMessage(int clientID, String protocol, String message)
 	{

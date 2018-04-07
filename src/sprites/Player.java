@@ -8,20 +8,34 @@ import javax.swing.ImageIcon;
 
 public class Player implements Serializable
 {
-	public static final long serialVersionUID = 1;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int mx;
 	private int my;
 	private int x = 300;
 	private int y = 300;
+	private int w;
+	private int h;
+	//public static Image image;
 	
-	//private Image image;
+	public Image image;
+	
 	
 	public Player()
 	{
-		
+		loadImage();
 	}
 	
-	
+	private void loadImage()
+	{
+		System.out.println("Image loaded");
+		ImageIcon ic = new ImageIcon("src/resources/player.png");
+		this.image = ic.getImage();
+		this.w = image.getWidth(null);
+		this.h= image.getHeight(null);
+	}
 	
 	public void move()
 	{
@@ -38,11 +52,28 @@ public class Player implements Serializable
 	{
 		return this.y;
 	}
-		
-//	public Image getImage()
-//	{
-//		return this.image;
-//	}
+	
+	public void setX(int x)
+	{
+		this.x = x;
+	}
+	
+	public void setY(int y)
+	{
+		this.y = y;
+	}
+	public int getWidth()
+	{
+		return this.w;
+	}
+	public int getHeight()
+	{
+		return this.h;
+	}
+	public Image getImage()
+	{
+		return this.image;
+	}
 	
 	public void keyPressed(KeyEvent e)
 	{
