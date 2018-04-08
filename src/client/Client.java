@@ -2,13 +2,19 @@ package client;
 
 import java.awt.EventQueue;
 import java.awt.event.KeyListener;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.Map;
+
 import frames.Board;
 import frames.MainFrame;
 import serializedMessages.GameMessage;
@@ -16,24 +22,37 @@ import server.Movement;
 
 public class Client extends Thread
 {
-	public int clientID;
-	private ObjectInputStream ois;
-	private ObjectOutputStream oos;
+	public int clientID = -1;
 	private MainFrame ex;
-	private Socket s;
+	public MulticastSocket socket;
 	private Board board;
 	public GameMessage gm = null;
 	public boolean running = true;
-	
+	private MulticastSocket ms = null;
+	public ByteArrayOutputStream baos = null;
+	private ByteArrayInputStream bais = null;
+	public ObjectOutputStream oos = null;
+	private ObjectInputStream ois = null;
+	public String repaint = "no";
 	public Map<Integer, Movement> playerMap;
 	
 	public Client()
 	{
+		playerMap = new HashMap<Integer, Movement>();
 		boolean connected = false;
-		s = new Socket();
+	
+		try 
+		{
+			socket = new MulticastSocket();
+		} 
+		catch (IOException e2) 
+		{
+			e2.printStackTrace();
+		}
+		
 		EventQueue.invokeLater(() -> 
 		{
-			ex = new MainFrame(this.s);
+			ex = new MainFrame(this.socket);
 	        ex.setVisible(true);    
 	    });
 		
@@ -41,39 +60,12 @@ public class Client extends Thread
 		{
 			try 
 			{
-				if(s.getInetAddress().isReachable(10000))
+				if(socket.getInetAddress().isReachable(10000))
 				{
-					System.out.println("Connected! Socket Address: " + s.getInetAddress());
+					System.out.println("Connected! Socket Address: " + socket.getInetAddress());
 					connected = true;
-					ois = new ObjectInputStream(s.getInputStream());
-					oos = new ObjectOutputStream(s.getOutputStream());
-					
-					//Remove connection Panel and add game board panel
-					//This initializes the game board.
 			        ex.getContentPane().removeAll();
-			        board = new Board(this.s, oos, this);
-			        
-			        try 
-			        {
-						gm = (GameMessage)ois.readObject();
-						if(gm.getProtocol().equalsIgnoreCase("assignid"))
-						{
-							this.clientID = Integer.parseInt(gm.getMessage());
-							System.out.println("Assigned Client ID: " + this.clientID);
-						}
-						
-						gm = (GameMessage)ois.readObject(); 	 
-						if(gm.getProtocol().equalsIgnoreCase("addedPlayer"))
-						{
-							playerMap = gm.playerMap;
-							board.repaint();	
-						}
-
-					} 
-			        catch (ClassNotFoundException e1) 
-			        {
-						e1.printStackTrace();
-					}
+			        board = new Board(this.socket, oos, this);
 			        ex.setContentPane(board);
 			        ex.setLocationRelativeTo(null);
 			        ex.setResizable(false);
@@ -83,8 +75,7 @@ public class Client extends Thread
 			        ex.addKeyListener(board.getKeyListeners()[0]);
 			        KeyListener[] e = ex.getKeyListeners();
 			        ex.setName("Game Board");
-			        System.out.println("Started Client thread");
-			        this.start();
+			     
 				}
 			} 
 			catch(SocketException se)
@@ -100,51 +91,124 @@ public class Client extends Thread
 				//Do nothing
 			}
 		}
-
-		//Add board Key listener right here 
-		//while(true)
-		//{}
-	}
-	
-	public void run()
-	{
-		while(true)
+		
+		byte[] data = new byte[1024];
+		DatagramPacket packet = new DatagramPacket(data, data.length);
+		
+		while(this.clientID == -1) 
 		{
+			System.out.println("here");
+			GameMessage assignID = new GameMessage(-1, "assignid", "" + this.getId());	        
+	        data = serializeGM(baos, assignID, oos);
 			try 
 			{
-				GameMessage gm = (GameMessage)ois.readObject();
-				//System.out.println("Message Received in Client : " + gm.getProtocol());
-				
-				if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
-				{
-					/*System.out.println("movement update on client: MSG: " + gm.getMessage());
-					for(Map.Entry<Integer,Movement> entry : gm.playerMap.entrySet())
-					{
-						System.out.println("values in client before overwrite " + entry.getValue().clientID + "  " 
-						+ entry.getValue().x + "  " + entry.getValue().y);	
-					}
-					 */
-					playerMap = gm.playerMap;
-					/*for(Map.Entry<Integer,Movement> entry : playerMap.entrySet())
-					{	
-						System.out.println("values in client after overwrite " + entry.getValue().clientID + "  " 
-						+ entry.getValue().x + "  " + entry.getValue().y);	
-					}
-					*/
-					board.repaint();
-				}
-			} catch (ClassNotFoundException e) 
+				sendData(data);
+				data = new byte[1024];
+				packet = new DatagramPacket(data, data.length);
+		        socket.receive(packet);		        
+		        gm = deSearializeGM(data, bais, ois);	    
+		       // System.out.println(gm.getID() + " : " + gm.getProtocol() + "  " + gm.getMessage()
+		       // + "\nThis local Port: " + socket.getLocalPort() );
+		        if(gm.getProtocol().equalsIgnoreCase("assignedID") 
+		        	&& gm.getMessage().trim().equalsIgnoreCase( String.valueOf(socket.getLocalPort())))
+		        {
+		        	this.clientID = gm.getID();
+		        	playerMap = gm.playerMap;	
+		        	
+		        }
+			} 
+			catch (IOException e1) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e1.printStackTrace();
+			}
+		}
+		   this.start();
+		   board.repaint();
+	}
+	
+	@SuppressWarnings("resource")
+	public synchronized  void run()
+	{
+		try 
+		{
+			ms = new MulticastSocket(4000);
+			InetAddress group = InetAddress.getByName("224.0.0.1");
+			ms.joinGroup(group);
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		
+		byte[] data;
+		DatagramPacket packet;
+
+		while(true)
+		{
+			 data = new byte[1024];
+			 packet = new DatagramPacket(data, data.length);			
+			try 
+			{
+				ms.receive(packet);
 			} catch (IOException e) 
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}	
+			} 
+			gm = deSearializeGM(data, bais, ois);	
+			if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
+			{
+				playerMap = gm.playerMap;
+			}  
 		}
 	}
 	
+	public GameMessage deSearializeGM(byte[] data, ByteArrayInputStream bais, 
+				  ObjectInputStream ois )
+	{
+		GameMessage gm1 = null;
+		try 
+		{
+			bais = new ByteArrayInputStream(data);
+			ois = new ObjectInputStream(bais);
+			gm1 = (GameMessage)ois.readObject();
+		} 
+		catch (ClassNotFoundException | IOException e) 
+		{
+			e.printStackTrace();
+		}	
+		return gm1;
+	}
+
+	public byte[] serializeGM(ByteArrayOutputStream baos, GameMessage gm2, 
+				 ObjectOutputStream oos)
+	{
+		byte [] data = null;
+		baos = new ByteArrayOutputStream();
+		try 
+		{
+			oos = new ObjectOutputStream(baos);
+			oos.writeObject(gm2);
+			oos.flush();
+			data = baos.toByteArray();
+		} 
+		catch (IOException e1) 
+		{
+			e1.printStackTrace();
+		}
+		return data;
+	}
+	
+	public void sendData(byte[] data)
+	{
+		DatagramPacket packet = new DatagramPacket(data, data.length, socket.getInetAddress(), socket.getPort());
+		try 
+		{
+			socket.send(packet);
+		} catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
 	public int getID()
 	{
 		return this.clientID;

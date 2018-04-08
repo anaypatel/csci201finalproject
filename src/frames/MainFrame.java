@@ -1,29 +1,22 @@
 package frames;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
-import client.Client;
-
-import javax.swing.JTextField;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
-import javax.swing.JButton;
-import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
-import javax.swing.Action;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.MulticastSocket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class MainFrame extends JFrame {
 
@@ -37,36 +30,17 @@ public class MainFrame extends JFrame {
 	private JTextField txtPort;
 	private JButton btnJoin;
 	boolean connected = false;
-	Socket s;
+	//Socket s;
+	
+	MulticastSocket s;
 	private final Action action = new SwingAction();
-	
-	/**
-	 * Launch the application.
-	 */
-	/*
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MainFrame frame = new MainFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	
-	*/
-	public MainFrame(Socket _s)
+
+	public MainFrame(MulticastSocket _s)
 	{
 		this.s = _s;
 		initilizeConnectionPanel();
 	}
-	
-	/**
-	 * Create the frame.
-	 */
+
 	public void initilizeConnectionPanel() 
 	{
 		///Set close for X button top right corner
@@ -159,9 +133,11 @@ public class MainFrame extends JFrame {
 				System.out.println("Trying to connect from MainFrame Action method 'Join'");
 				s.connect(new InetSocketAddress(txtIpAddress.getText(), 
 												Integer.parseInt(txtPort.getText())));	
+				
+				//s = new MulticastSocket(Integer.parseInt(txtPort.getText()));
+				
 				System.out.println("Connection complete from MainFrame Action method 'Join'");
-				//removeAll();
-				//initializeGameBoardPanel();
+
 			}
 			catch(SocketException se)
 			{

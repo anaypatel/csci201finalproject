@@ -2,26 +2,20 @@ package sprites;
 
 import java.awt.Image;
 import java.awt.event.KeyEvent;
-import java.io.Serializable;
-
+import java.net.DatagramPacket;
 import javax.swing.ImageIcon;
+import client.Client;
+import serializedMessages.GameMessage;
 
-public class Player implements Serializable
+public class Player
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private int mx;
 	private int my;
 	private int x = 300;
 	private int y = 300;
 	private int w;
 	private int h;
-	//public static Image image;
-	
-	public Image image;
-	
+	public static Image image;
 	
 	public Player()
 	{
@@ -37,11 +31,20 @@ public class Player implements Serializable
 		this.h= image.getHeight(null);
 	}
 	
-	public void move()
+	public void move(Client c)
 	{
 		//Need to set boundaries on border later!
 		this.x = this.x + mx;
 		this.y = this.y + my;
+		
+		if(mx != 0 || my != 0)
+		{
+			byte[] data = new byte[1024];
+			DatagramPacket packet = new DatagramPacket(data, data.length);
+			GameMessage gm = new GameMessage(c.getID(), "movement",this.x, this.y);
+			data = c.serializeGM(c.baos, gm, c.oos);
+        	c.sendData(data);
+		}
 	}
 	
 	public int getX()
@@ -81,21 +84,19 @@ public class Player implements Serializable
 		
 		if(key == KeyEvent.VK_A)
 		{
-			this.mx = -2;
+			this.mx = -3;
 		}
 		if(key == KeyEvent.VK_D)
 		{
-			this.mx = 2;
+			this.mx = 3;
 		}
-		
 		if(key == KeyEvent.VK_W)
 		{
-			this.my = -2;
+			this.my = -3;
 		}
-		
 		if(key == KeyEvent.VK_S)
 		{
-			this.my = 2;
+			this.my = 3;
 		}
 		
 		
@@ -113,12 +114,10 @@ public class Player implements Serializable
 		{
 			this.mx = 0;
 		}
-		
 		if(key == KeyEvent.VK_W)
 		{
 			this.my = 0;
 		}
-		
 		if(key == KeyEvent.VK_S)
 		{
 			this.my = 0;
