@@ -33,7 +33,6 @@ public class Client extends Thread
 	private ByteArrayInputStream bais = null;
 	public ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
-	public String repaint = "no";
 	public Map<Integer, Movement> playerMap;
 	
 	public Client()
