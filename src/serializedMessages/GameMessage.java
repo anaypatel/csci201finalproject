@@ -14,7 +14,8 @@ public class GameMessage  implements Serializable
 	private String protocol;
 	private String message;
 	public Player player;
-	public Map<Integer, Movement> playerMap;
+	//public Map<Integer, Movement> playerMap;
+	public Map<Integer, Player> playerMap;
 	public Movement m;
 	
 	public GameMessage(int clientID, String protocol, String message)
@@ -25,7 +26,7 @@ public class GameMessage  implements Serializable
 	}
 	
 	//Constructor for movement
-	public GameMessage(int clientID, String protocol, int x, int y)
+	public GameMessage(int clientID, String protocol)
 	{
 		this.clientID = clientID;
 		this.protocol = protocol;

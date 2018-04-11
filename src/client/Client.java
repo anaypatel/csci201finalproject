@@ -22,6 +22,7 @@ import frames.Board;
 import frames.MainFrame;
 import serializedMessages.GameMessage;
 import server.Movement;
+import sprites.Player;
 
 public class Client extends Thread
 {
@@ -36,11 +37,11 @@ public class Client extends Thread
 	private ByteArrayInputStream bais = null;
 	public ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
-	public Map<Integer, Movement> playerMap;
+	public Map<Integer, Player> playerMap;
 	
 	public Client()
 	{
-		playerMap = new HashMap<Integer, Movement>();
+		playerMap = new HashMap<Integer, Player>();
 		boolean connected = false;
 	
 		try 
@@ -116,6 +117,10 @@ public class Client extends Thread
 		        {
 		        	this.clientID = gm.getID();
 		        	playerMap = gm.playerMap;	
+		        	
+		        	
+		        	//board.player.setX(gm.player.getX());
+		        	//board.player.setY(gm.player.getY());
 		        	
 		        }
 			} 

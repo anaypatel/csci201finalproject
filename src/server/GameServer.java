@@ -15,16 +15,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import serializedMessages.GameMessage;
+import sprites.Player;
 
 public class GameServer  extends Thread
 {
 	private int clientIDCounter = 0;
-	private Map<Integer, Movement> playerMap;
+	
+	//private Map<Integer, Movement> playerMap;
+	private Map<Integer, Player> playerMap;
+	
 	private MulticastSocket socket;
 	private GameMessage gm;
 	public GameServer(int port)
 	{
-		playerMap = new HashMap<Integer, Movement>();
+		//playerMap = new HashMap<Integer, Movement>();
+		playerMap = new HashMap<Integer, Player>();
 		try 
 		{
 			System.out.println("Binding to port: " + port);
@@ -72,10 +77,21 @@ public class GameServer  extends Thread
 			
 			if(gm.getProtocol().equals("movement"))
 			{
-				playerMap.get(gm.getID()).x = gm.getX();
-				playerMap.get(gm.getID()).y = gm.getY();
+				
+				Player temp = playerMap.get(gm.player.getID());
+				
+				temp.setX(gm.player.getX());
+				temp.setX(gm.player.getY());
+				
+				//playerMap.get(gm.player.getID()) = gm.player.getX();
+				//playerMap.get(gm.player.getID()) = gm.player.getY();
+				
 				gm = new GameMessage(gm.getID(), "movementupdate", "");
+				
+				System.out.println("Movement");
 				gm.playerMap = playerMap;
+				
+				
 				data = serializeGM(baos, gm, oos);
 				
 				try 
@@ -96,9 +112,16 @@ public class GameServer  extends Thread
 						           + clientIDCounter + " For port : " + packet.getPort());
 				GameMessage assignID = new GameMessage(clientIDCounter, "assignedid", "" 
 						               + packet.getPort());	
-				Movement m = new Movement(clientIDCounter, 300, 300);
-				playerMap.put(clientIDCounter,m);
+				
+				//Movement m = new Movement(clientIDCounter, 300, 300);
+				
+				Player player = new Player(clientIDCounter, 300, 300, "");
+				//playerMap.put(clientIDCounter,m);
+				playerMap.put(clientIDCounter, player);
+				
 				gm.playerMap = playerMap;
+				
+				gm.player = player;
 				data = serializeGM(baos, assignID, oos);
 				sendData(data, packet.getAddress(), packet.getPort());					
 				++clientIDCounter;

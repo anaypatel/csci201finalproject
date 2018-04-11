@@ -59,13 +59,13 @@ public class Board extends JPanel implements ActionListener
 
 		if(c.playerMap != null)
 		{
-			for(Map.Entry<Integer,Movement> entry : c.playerMap.entrySet())
+			for(Map.Entry<Integer,Player> entry : c.playerMap.entrySet())
 			{
-				g2d.setClip(entry.getValue().x+2, entry.getValue().y, 43,90);
+				g2d.setClip(entry.getValue().getX()+2, entry.getValue().getY(), 43,90);
 				
 				
 				g2d.drawImage(c.loadImage(player.getSprite())
-						,entry.getValue().x + 2, entry.getValue().y + 2, this);
+						,entry.getValue().getX() + 2, entry.getValue().getY() + 2, this);
 				
 			}
 		}
@@ -79,8 +79,11 @@ public class Board extends JPanel implements ActionListener
 	}
 	private void move()
 	{
-		player.move(c);	
+		if(player != null)
+		{
+			player.move(c);	
 			repaint();
+		}
 	}
 	public class TAdapter extends KeyAdapter 
 	{

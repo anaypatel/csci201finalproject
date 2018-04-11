@@ -2,25 +2,43 @@ package sprites;
 
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 import java.net.DatagramPacket;
 import javax.swing.ImageIcon;
 import client.Client;
 import serializedMessages.GameMessage;
 
-public class Player
+public class Player implements Serializable
 {
 	private String playerSprite = "player";
 	private int mx;
 	private int my;
 	private int x = 300;
 	private int y = 300;
+	private int clientID;
 	//private int w;
 	//private int h;
 	//public static Image image;
 	
+	public Player(int clientID, int x, int y, String spriteName)
+	{
+		this.clientID = clientID;
+		this.x = x;
+		this.y = y;
+	}
+	
 	public Player()
 	{
-		//loadImage();
+		
+	}
+	
+	public int getID()
+	{
+		return this.clientID;
+	}
+	public void setClientID(int ID)
+	{
+		this.clientID = ID;
 	}
 	
 
@@ -39,7 +57,8 @@ public class Player
 		{
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
-			GameMessage gm = new GameMessage(c.getID(), "movement",this.x, this.y);
+			GameMessage gm = new GameMessage(c.getID(), "movement");
+			gm.player = this;
 			data = c.serializeGM(c.baos, gm, c.oos);
         	c.sendData(data);
 		}
