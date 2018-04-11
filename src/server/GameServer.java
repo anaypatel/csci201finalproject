@@ -81,14 +81,17 @@ public class GameServer  extends Thread
 				Player temp = playerMap.get(gm.player.getID());
 				
 				temp.setX(gm.player.getX());
-				temp.setX(gm.player.getY());
+				temp.setY(gm.player.getY());
 				
-				//playerMap.get(gm.player.getID()) = gm.player.getX();
+				///playerMap.get(gm.getID()).setX(gm.player.getX());
+				//playerMap.get(gm.getID()).setY(gm.player.getY());
+				
+				
 				//playerMap.get(gm.player.getID()) = gm.player.getY();
 				
 				gm = new GameMessage(gm.getID(), "movementupdate", "");
 				
-				System.out.println("Movement");
+				//System.out.println("Movement");
 				gm.playerMap = playerMap;
 				
 				
@@ -112,15 +115,9 @@ public class GameServer  extends Thread
 						           + clientIDCounter + " For port : " + packet.getPort());
 				GameMessage assignID = new GameMessage(clientIDCounter, "assignedid", "" 
 						               + packet.getPort());	
-				
-				//Movement m = new Movement(clientIDCounter, 300, 300);
-				
 				Player player = new Player(clientIDCounter, 300, 300, "");
-				//playerMap.put(clientIDCounter,m);
 				playerMap.put(clientIDCounter, player);
-				
 				gm.playerMap = playerMap;
-				
 				gm.player = player;
 				data = serializeGM(baos, assignID, oos);
 				sendData(data, packet.getAddress(), packet.getPort());					

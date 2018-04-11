@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
 		///Set close for X button top right corner
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//Set x,y,width,height
-		setBounds(800, 600, 800, 600);
+		setBounds(1280, 720, 1280, 720);
 		//Create new JPanel for connection screen
 		contentPane = new JPanel();
 		//Set border

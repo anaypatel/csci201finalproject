@@ -50,9 +50,30 @@ public class Player implements Serializable
 	public void move(Client c)
 	{
 		//Need to set boundaries on border later!
-		this.x = this.x + mx;
-		this.y = this.y + my;
-		
+	
+		if(x < 1220 && x > 0)
+		{
+			this.x = this.x + mx;
+		}		
+		else
+		{
+			if(x >= 1220)
+				x -= 1;
+			if(x <= 0 )
+				x += 1;
+		}
+		if(y > 0 && y < 589 )
+		{
+			this.y = this.y + my;
+		}
+		else
+		{
+			if(y >= 589)
+				y -= 1;
+			if(y <= 0 )
+				y += 1;
+		}
+		System.out.println("x: " + this.x + " y: " + this.y);
 		if(mx != 0 || my != 0)
 		{
 			byte[] data = new byte[1024];

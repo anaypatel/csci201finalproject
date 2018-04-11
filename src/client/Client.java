@@ -13,6 +13,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,12 +39,20 @@ public class Client extends Thread
 	public ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	public Map<Integer, Player> playerMap;
+	public ArrayList<Image> spriteList;
 	
 	public Client()
 	{
 		playerMap = new HashMap<Integer, Player>();
 		boolean connected = false;
 	
+		 spriteList = new ArrayList<Image>();
+		
+		Image temp = loadImage("player");
+		
+		spriteList.add(temp);
+		
+		
 		try 
 		{
 			socket = new MulticastSocket();
@@ -71,7 +80,7 @@ public class Client extends Thread
 			        board = new Board(this.socket, oos, this);
 			        ex.setContentPane(board);
 			        ex.setLocationRelativeTo(null);
-			        ex.setResizable(false);
+			        ex.setResizable(true);
 			        ex.getContentPane().revalidate();
 			        ex.repaint();
 			        ex.requestFocusInWindow();
@@ -139,10 +148,6 @@ public class Client extends Thread
 		System.out.println("Image loaded");
 		ImageIcon ic = new ImageIcon("src/resources/" + name + ".png");
 		Image image = ic.getImage();
-		
-		//this.w = image.getWidth(null);
-		//this.h= image.getHeight(null);
-		
 		return image;
 	}
 	
@@ -179,6 +184,8 @@ public class Client extends Thread
 			if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
 			{
 				playerMap = gm.playerMap;
+				
+				
 			}  
 		}
 	}
