@@ -9,26 +9,24 @@ import serializedMessages.GameMessage;
 
 public class Player
 {
+	private String playerSprite = "player";
 	private int mx;
 	private int my;
 	private int x = 300;
 	private int y = 300;
-	private int w;
-	private int h;
-	public static Image image;
+	//private int w;
+	//private int h;
+	//public static Image image;
 	
 	public Player()
 	{
-		loadImage();
+		//loadImage();
 	}
 	
-	private void loadImage()
+
+	public String getSprite()
 	{
-		System.out.println("Image loaded");
-		ImageIcon ic = new ImageIcon("src/resources/player.png");
-		this.image = ic.getImage();
-		this.w = image.getWidth(null);
-		this.h= image.getHeight(null);
+		return playerSprite;
 	}
 	
 	public void move(Client c)
@@ -65,6 +63,7 @@ public class Player
 	{
 		this.y = y;
 	}
+	/*
 	public int getWidth()
 	{
 		return this.w;
@@ -73,11 +72,13 @@ public class Player
 	{
 		return this.h;
 	}
-	public Image getImage()
+	
+	  public Image getImage()
+	 
 	{
 		return this.image;
 	}
-	
+	*/
 	public void keyPressed(KeyEvent e)
 	{
 		int key = e.getKeyCode();

@@ -1,6 +1,7 @@
 package client;
 
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.awt.event.KeyListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,6 +15,8 @@ import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.ImageIcon;
 
 import frames.Board;
 import frames.MainFrame;
@@ -125,6 +128,20 @@ public class Client extends Thread
 		   board.repaint();
 	}
 	
+	
+	public Image loadImage(String name)
+	{
+		System.out.println("Image loaded");
+		ImageIcon ic = new ImageIcon("src/resources/" + name + ".png");
+		Image image = ic.getImage();
+		
+		//this.w = image.getWidth(null);
+		//this.h= image.getHeight(null);
+		
+		return image;
+	}
+	
+	
 	@SuppressWarnings("resource")
 	public synchronized  void run()
 	{
@@ -161,6 +178,8 @@ public class Client extends Thread
 		}
 	}
 	
+	
+	
 	public GameMessage deSearializeGM(byte[] data, ByteArrayInputStream bais, 
 				  ObjectInputStream ois )
 	{
@@ -178,6 +197,8 @@ public class Client extends Thread
 		return gm1;
 	}
 
+	
+	
 	public byte[] serializeGM(ByteArrayOutputStream baos, GameMessage gm2, 
 				 ObjectOutputStream oos)
 	{
@@ -197,6 +218,10 @@ public class Client extends Thread
 		return data;
 	}
 	
+	
+	
+	
+	
 	public void sendData(byte[] data)
 	{
 		DatagramPacket packet = new DatagramPacket(data, data.length, socket.getInetAddress(), socket.getPort());
@@ -212,6 +237,9 @@ public class Client extends Thread
 	{
 		return this.clientID;
 	}
+	
+	
+	
 	
 	public static void main(String [] args) throws InvocationTargetException, InterruptedException
 	{

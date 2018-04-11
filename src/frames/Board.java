@@ -62,7 +62,10 @@ public class Board extends JPanel implements ActionListener
 			for(Map.Entry<Integer,Movement> entry : c.playerMap.entrySet())
 			{
 				g2d.setClip(entry.getValue().x+2, entry.getValue().y, 43,90);
-				g2d.drawImage(player.getImage(),entry.getValue().x + 2, entry.getValue().y + 2, this);
+				
+				
+				g2d.drawImage(c.loadImage(player.getSprite())
+						,entry.getValue().x + 2, entry.getValue().y + 2, this);
 				
 			}
 		}
