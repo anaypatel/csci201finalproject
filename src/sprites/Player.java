@@ -4,6 +4,8 @@ import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.net.DatagramPacket;
+import java.util.ArrayList;
+
 import javax.swing.ImageIcon;
 import client.Client;
 import serializedMessages.GameMessage;
@@ -16,12 +18,12 @@ public class Player implements Serializable
 	private int x = 300;
 	private int y = 300;
 	private int clientID;
-	//private int w;
-	//private int h;
-	//public static Image image;
+	
+	private ArrayList<Projectile> missiles = new ArrayList<Projectile>();;
 	
 	public Player(int clientID, int x, int y, String spriteName)
 	{
+		//missiles = new ArrayList<Projectile>();
 		this.clientID = clientID;
 		this.x = x;
 		this.y = y;
@@ -30,6 +32,25 @@ public class Player implements Serializable
 	public Player()
 	{
 		
+	}
+	
+	 public void fire() 
+	 {
+	       missiles.add(new Projectile(x, y,clientID, ""));
+		 
+		 /*	
+		 	byte[] data = new byte[1024];
+			DatagramPacket packet = new DatagramPacket(data, data.length);
+			System.out.println(c.getID() + "projectile  " + this.x + this.y);
+			GameMessage gm = new GameMessage(c.getID(), "projectile",this.x, this.y);
+			data = c.serializeGM(c.baos, gm, c.oos);
+			c.sendData(data);
+		*/
+	  }
+	 
+	public ArrayList<Projectile> getMissiles() 
+	{
+		return missiles;
 	}
 	
 	public int getID()
@@ -41,7 +62,6 @@ public class Player implements Serializable
 		this.clientID = ID;
 	}
 	
-
 	public String getSprite()
 	{
 		return playerSprite;
@@ -49,8 +69,6 @@ public class Player implements Serializable
 	
 	public void move(Client c)
 	{
-		//Need to set boundaries on border later!
-	
 		if(x < 1220 && x > 0)
 		{
 			this.x = this.x + mx;
@@ -73,7 +91,7 @@ public class Player implements Serializable
 			if(y <= 0 )
 				y += 1;
 		}
-		System.out.println("x: " + this.x + " y: " + this.y);
+		//System.out.println("x: " + this.x + " y: " + this.y);
 		if(mx != 0 || my != 0)
 		{
 			byte[] data = new byte[1024];
@@ -103,26 +121,16 @@ public class Player implements Serializable
 	{
 		this.y = y;
 	}
-	/*
-	public int getWidth()
-	{
-		return this.w;
-	}
-	public int getHeight()
-	{
-		return this.h;
-	}
-	
-	  public Image getImage()
-	 
-	{
-		return this.image;
-	}
-	*/
+
 	public void keyPressed(KeyEvent e)
 	{
 		int key = e.getKeyCode();
 		
+		
+		if (key == KeyEvent.VK_SPACE) 
+		{
+	            fire();
+	    }
 		if(key == KeyEvent.VK_A)
 		{
 			this.mx = -3;

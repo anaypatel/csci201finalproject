@@ -39,18 +39,23 @@ public class Client extends Thread
 	public ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	public Map<Integer, Player> playerMap;
-	public ArrayList<Image> spriteList;
+	//public ArrayList<Image> spriteList;
+	public Image playerSprite;
+	public Image projectileSprite;
 	
 	public Client()
 	{
 		playerMap = new HashMap<Integer, Player>();
 		boolean connected = false;
 	
-		 spriteList = new ArrayList<Image>();
+		//spriteList = new ArrayList<Image>();
 		
-		Image temp = loadImage("player");
+		playerSprite = loadImage("player");
 		
-		spriteList.add(temp);
+		projectileSprite = loadImage("projectile");
+		
+		//spriteList.add(playerSprite);
+		//spriteList.addAll(arg0)
 		
 		
 		try 

@@ -63,9 +63,26 @@ public class Board extends JPanel implements ActionListener
 			{
 				g2d.setClip(entry.getValue().getX()+2, entry.getValue().getY(), 43,90);
 				
+				//5,5 start on sprite sheet /8w / 8h
+				//6x6
+				/*
+				g2d.drawImage(c.playerSprite,
+						entry.getValue().getX() + 2, entry.getValue().getY() + 2,
+						entry.getValue().getX() + 8, entry.getValue().getY() +8,
+						5*8, 5*8,
+						(5+1)*8,  (5+1)*8,
+						this);
 				
-				g2d.drawImage(c.spriteList.get(0)
-					,entry.getValue().getX() + 2, entry.getValue().getY() + 2, this);
+				*/
+				
+				g2d.drawImage(c.playerSprite,
+						entry.getValue().getX(), entry.getValue().getY(),
+						5,5,
+						1*10,
+						+ 10,
+						(0+1)*10,  
+						(0+1)*10,
+						this);
 				
 			}
 		}
