@@ -36,6 +36,7 @@ public class Player implements Serializable
 	
 	 public void fire() 
 	 {
+		 System.out.println("Missile added");
 	       missiles.add(new Projectile(x, y,clientID, ""));
 		 
 		 /*	

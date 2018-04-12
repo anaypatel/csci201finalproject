@@ -10,6 +10,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ObjectOutputStream;
 import java.net.MulticastSocket;
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.swing.JPanel;
@@ -17,8 +18,8 @@ import javax.swing.Timer;
 
 import client.Client;
 import serializedMessages.GameMessage;
-import server.Movement;
 import sprites.Player;
+import sprites.Projectile;
 
 public class Board extends JPanel implements ActionListener
 {
@@ -99,7 +100,26 @@ public class Board extends JPanel implements ActionListener
 	public void actionPerformed(ActionEvent e) 
 	{
 		move();	
+		updateMissiles();
 	}
+	
+	 private void updateMissiles() {
+
+	        ArrayList<Projectile> missiles = player.missiles;
+
+	        for (int i = 0; i < missiles.size(); i++) {
+
+	            Projectile missile = missiles.get(i);
+
+	            if (missile.isVisible()) {
+
+	                missile.move();
+	            } else {
+
+	                missiles.remove(i);
+	            }
+	        }
+	    }
 	private void move()
 	{
 		if(player != null)
