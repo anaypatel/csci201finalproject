@@ -26,7 +26,7 @@ public class Board extends JPanel implements ActionListener
 	private static final long serialVersionUID = 1L;
 	public Player player;
 	private Timer timer;
-	private final int DELAY = 10;
+	private final int DELAY = 15;
 	private GameMessage gm;
 	private Client c;
 	public Board(MulticastSocket s, ObjectOutputStream oos, Client c)
@@ -62,7 +62,7 @@ public class Board extends JPanel implements ActionListener
 		{
 			for(Map.Entry<Integer,Player> entry : c.playerMap.entrySet())
 			{
-				g2d.setClip(entry.getValue().getX()+2, entry.getValue().getY(), 43,90);
+				//g2d.setClip(entry.getValue().getX()+2, entry.getValue().getY(), 43,90);
 				
 				//5,5 start on sprite sheet /8w / 8h
 				//6x6
@@ -84,11 +84,24 @@ public class Board extends JPanel implements ActionListener
 				for(int j = 0; j < entry.getValue().missiles.size(); ++j)
 				{
 					System.out.println("missile drawn?");
-					g2d.drawImage(c.playerSprite,
+					
+					
+					/*g2d.drawImage(c.playerSprite,
 							 entry.getValue().missiles.get(j).getX(),entry.getValue().missiles.get(j).getY(),
 							 entry.getValue().missiles.get(j).getX() + 50,entry.getValue().missiles.get(j).getY() + 50,
 							0, 0, 50, 50,
+							this);*/
+					
+					g2d.drawImage(c.projectileSprite,
+							 entry.getValue().missiles.get(j).getX(),
+							 entry.getValue().missiles.get(j).getY(),
+							 entry.getValue().missiles.get(j).getX() + 50,
+							 entry.getValue().missiles.get(j).getY() + 50,
+							 
+							 
 							this);
+					
+					 entry.getValue().missiles.get(j).move();
 				}
 				
 			}
@@ -116,6 +129,7 @@ public class Board extends JPanel implements ActionListener
 	                missile.move();
 	            } else {
 
+	            	System.out.println("Removed missile");
 	                missiles.remove(i);
 	            }
 	        }

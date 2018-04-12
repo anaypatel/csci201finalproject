@@ -130,8 +130,11 @@ public class Player implements Serializable
 		
 		if (key == KeyEvent.VK_SPACE) 
 		{
+			if(missiles.size() <4)
+			{
 	            fire();
-	            System.out.println("Projectile fired");
+			}   
+			System.out.println("Projectile fired");
 	    }
 		if(key == KeyEvent.VK_A)
 		{

@@ -7,10 +7,10 @@ public class Projectile implements Serializable
 	private int x, y;
 	private int clientID;
 	
-	private final int BOARD_WIDTH = 720;
-    private final int MISSILE_SPEED =3;
+	private final int BOARD_WIDTH = 1280;
+    private final int MISSILE_SPEED =2;
 	private String direction;
-	private boolean visible;
+	private boolean visible = true;
 	
 	public Projectile(int x, int y, int id, String direction)
 	{
@@ -21,12 +21,12 @@ public class Projectile implements Serializable
 
 	 public void move()
 	 {
-        
+      System.out.println("Missile Coordinates: x: " + x + " y: " + y);  
         x += MISSILE_SPEED;
         
         if (x > BOARD_WIDTH) 
         {
-            visible = false;
+           visible = false;
         }
 	 }
 	 

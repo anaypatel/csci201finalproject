@@ -83,6 +83,11 @@ public class GameServer  extends Thread
 				temp.setX(gm.player.getX());
 				temp.setY(gm.player.getY());
 				
+				//playerMap.get(gm.player.getID()).missiles = temp.missiles;
+				
+				System.out.println("GM Player Missile Size: " + gm.player.missiles.size());
+				
+				temp.missiles = gm.player.missiles;
 				///playerMap.get(gm.getID()).setX(gm.player.getX());
 				//playerMap.get(gm.getID()).setY(gm.player.getY());
 				
@@ -94,6 +99,7 @@ public class GameServer  extends Thread
 				//System.out.println("Movement");
 				gm.playerMap = playerMap;
 				
+				System.out.println("Player Missile size: " + temp.missiles.size());
 				
 				data = serializeGM(baos, gm, oos);
 				
