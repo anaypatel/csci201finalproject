@@ -19,7 +19,7 @@ public class Player implements Serializable
 	private int y = 300;
 	private int clientID;
 	
-	private ArrayList<Projectile> missiles = new ArrayList<Projectile>();;
+	public ArrayList<Projectile> missiles = new ArrayList<Projectile>();
 	
 	public Player(int clientID, int x, int y, String spriteName)
 	{
@@ -130,6 +130,7 @@ public class Player implements Serializable
 		if (key == KeyEvent.VK_SPACE) 
 		{
 	            fire();
+	            System.out.println("Projectile fired");
 	    }
 		if(key == KeyEvent.VK_A)
 		{

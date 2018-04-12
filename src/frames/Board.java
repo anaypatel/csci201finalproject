@@ -74,15 +74,21 @@ public class Board extends JPanel implements ActionListener
 						this);
 				
 				*/
-				
 				g2d.drawImage(c.playerSprite,
 						entry.getValue().getX(), entry.getValue().getY(),
-						5,5,
-						1*10,
-						+ 10,
-						(0+1)*10,  
-						(0+1)*10,
+						entry.getValue().getX() + 50, entry.getValue().getY() + 50,
+						0, 0, 50, 50,
 						this);
+				
+				for(int j = 0; j < entry.getValue().missiles.size(); ++j)
+				{
+					System.out.println("missile drawn?");
+					g2d.drawImage(c.playerSprite,
+							 entry.getValue().missiles.get(j).getX(),entry.getValue().missiles.get(j).getY(),
+							 entry.getValue().missiles.get(j).getX() + 50,entry.getValue().missiles.get(j).getY() + 50,
+							0, 0, 50, 50,
+							this);
+				}
 				
 			}
 		}
