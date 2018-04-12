@@ -26,8 +26,10 @@ public class GameServer  extends Thread
 	
 	private MulticastSocket socket;
 	private GameMessage gm;
+	private boolean gameRunning;
 	public GameServer(int port)
 	{
+		gameRunning = false;
 		//playerMap = new HashMap<Integer, Movement>();
 		playerMap = new HashMap<Integer, Player>();
 		try 
@@ -39,6 +41,78 @@ public class GameServer  extends Thread
 		} catch (IOException ioe) {
 			System.out.println("Error From GameRoom Constructor: " + ioe);
 		
+		}
+		
+		
+		
+		ByteArrayInputStream bais = null;
+		ByteArrayOutputStream baos = null;
+		ObjectInputStream ois = null;
+		ObjectOutputStream oos = null;
+		DatagramPacket packet;
+		byte[] data;
+		
+		InetAddress address = null;
+		try 
+		{
+			address = InetAddress.getByName("224.0.0.1");
+		} 
+		catch (UnknownHostException e1) 
+		{
+			e1.printStackTrace();
+		}
+		
+		
+		while(true)
+		{
+			System.out.println("hello");
+			if(gameRunning)
+			{
+				
+				System.out.println("GameLoop running from Mainthread");
+				for(int i = 0; i < playerMap.size(); ++i)
+				{
+					if(playerMap.get(i).missiles.size() > 0)
+					{
+						for(int j = 0; j < playerMap.get(i).missiles.size(); ++j)
+						{
+							System.out.println("Missile Moved");
+							playerMap.get(i).missiles.get(j).move();
+						}
+					}
+				}
+				
+				
+				gm = new GameMessage(gm.getID(), "movementupdate", "GameLoop Message");
+				
+				//System.out.println("Movement");
+				gm.playerMap = playerMap;
+				
+				
+				
+				data = serializeGM(baos, gm, oos);
+				
+				try 
+				{
+					packet = new DatagramPacket(data, data.length, address, 4000);
+					socket.send(packet);
+				} 
+				catch (UnknownHostException e) 
+				{
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				
+				
+				try {
+					Thread.sleep(15);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	
 	}
@@ -63,6 +137,7 @@ public class GameServer  extends Thread
 		}
 		while(true)
 		{
+			
 			data = new byte[1024];
 			packet = new DatagramPacket(data, data.length);
 			try 
@@ -77,6 +152,7 @@ public class GameServer  extends Thread
 			
 			if(gm.getProtocol().equals("movement"))
 			{
+				
 				
 				Player temp = playerMap.get(gm.player.getID());
 				
@@ -94,7 +170,7 @@ public class GameServer  extends Thread
 				
 				//playerMap.get(gm.player.getID()) = gm.player.getY();
 				
-				gm = new GameMessage(gm.getID(), "movementupdate", "");
+				gm = new GameMessage(gm.getID(), "movementupdate", "Movement Message");
 				
 				//System.out.println("Movement");
 				gm.playerMap = playerMap;
@@ -128,7 +204,10 @@ public class GameServer  extends Thread
 				data = serializeGM(baos, assignID, oos);
 				sendData(data, packet.getAddress(), packet.getPort());					
 				++clientIDCounter;
+				gameRunning = true;
 			}
+			
+			
 		}
 	}
 	

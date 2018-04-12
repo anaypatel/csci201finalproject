@@ -177,7 +177,8 @@ public class Client extends Thread
 		while(true)
 		{
 			 data = new byte[1024];
-			 packet = new DatagramPacket(data, data.length);			
+			 packet = new DatagramPacket(data, data.length);
+			 System.out.println("Game Messaage: " + gm.getMessage());
 			try 
 			{
 				ms.receive(packet);
