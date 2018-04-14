@@ -20,17 +20,13 @@ import sprites.Player;
 public class GameServer  extends Thread
 {
 	private int clientIDCounter = 0;
-	
-	//private Map<Integer, Movement> playerMap;
 	private Map<Integer, Player> playerMap;
-	
 	private MulticastSocket socket;
 	private GameMessage gm;
 	private boolean gameRunning;
 	public GameServer(int port)
 	{
 		gameRunning = false;
-		//playerMap = new HashMap<Integer, Movement>();
 		playerMap = new HashMap<Integer, Player>();
 		try 
 		{
@@ -42,17 +38,18 @@ public class GameServer  extends Thread
 			System.out.println("Error From GameRoom Constructor: " + ioe);
 		
 		}
-		
-		
-		
-		ByteArrayInputStream bais = null;
+
+		initGameLoop();		
+	}
+
+	private void initGameLoop()
+	{
 		ByteArrayOutputStream baos = null;
-		ObjectInputStream ois = null;
 		ObjectOutputStream oos = null;
 		DatagramPacket packet;
+		InetAddress address = null;
 		byte[] data;
 		
-		InetAddress address = null;
 		try 
 		{
 			address = InetAddress.getByName("224.0.0.1");
@@ -62,34 +59,79 @@ public class GameServer  extends Thread
 			e1.printStackTrace();
 		}
 		
-		
 		while(true)
 		{
-			System.out.println("hello");
-			if(gameRunning)
+			try 
 			{
-				
-				System.out.println("GameLoop running from Mainthread");
-				for(int i = 0; i < playerMap.size(); ++i)
+				Thread.sleep(9, 0);
+			} catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			}
+			
+			Map<Integer, Player> collisionMap = new HashMap<Integer, Player>();
+			
+			for(int i = 0; i < playerMap.size(); ++i)
+			{
+				Player temp = playerMap.get(i);
+				if(collisionMap.containsKey(temp.getX()))
 				{
-					if(playerMap.get(i).missiles.size() > 0)
+					Player possibleCollider = collisionMap.get(temp.getX());
+					if(temp.getY() == possibleCollider.getY())
 					{
-						for(int j = 0; j < playerMap.get(i).missiles.size(); ++j)
-						{
-							System.out.println("Missile Moved");
-							playerMap.get(i).missiles.get(j).move();
-						}
+						System.out.println("Two players Collided!");
 					}
 				}
+				else
+				{
+					collisionMap.put(temp.getX(), temp);
+				}
 				
+			}
+			for(int i = 0; i < playerMap.size(); ++i)
+			{
+				if(playerMap.get(i).missiles.size() > 0)
+				{
+					for(int j = 0; j < playerMap.get(i).missiles.size(); ++j)
+					{		
+			            if (playerMap.get(i).missiles.get(j).isVisible()) 
+			            {
+			            	if((collisionMap.containsKey(playerMap.get(i).missiles.get(j).getX())) &&
+			            	   (playerMap.get(i).getID() !=  
+			            		collisionMap.get(playerMap.get(i).missiles.get(j).getX()).getID()))
+			            	{
+			            		if(collisionMap.get(playerMap.get(i).missiles.get(j).getX()).getY() ==
+			            				playerMap.get(i).missiles.get(j).getY())
+			            		{
+			            			System.out.println("Collision with projectile detected");
+			            			playerMap.get(i).missiles.get(j).setVisible(false);
+			            		}
+			            		else
+			            		{
+			            			playerMap.get(i).missiles.get(j).move();
+			            		}
+			            	}
+			            	else
+		            		{
+		            			playerMap.get(i).missiles.get(j).move();
+		            		}
+			            	
+			            	gameRunning = true;
+						}
+			            else 
+			            {
+			            	playerMap.get(i).missiles.remove(j);
+			            }
+					}	
+				}
 				
-				gm = new GameMessage(gm.getID(), "movementupdate", "GameLoop Message");
-				
-				//System.out.println("Movement");
+			}
+			
+			if(gameRunning)
+			{
+				gameRunning = false;
+				gm = new GameMessage(-1, "movementupdate", "GameLoop Message");
 				gm.playerMap = playerMap;
-				
-				
-				
 				data = serializeGM(baos, gm, oos);
 				
 				try 
@@ -100,24 +142,24 @@ public class GameServer  extends Thread
 				catch (UnknownHostException e) 
 				{
 					e.printStackTrace();
-				} catch (IOException e) {
+				} catch (IOException e) 
+				{
 					e.printStackTrace();
 				}
-				
-				
-				
-				try {
-					Thread.sleep(15);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			}	
+			try
+			{
+				Thread.sleep(0,0);
 			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+			
 		}
-	
 	}
 	
-	
+
 	public void run()
 	{
 		ByteArrayInputStream bais = null;
@@ -126,19 +168,10 @@ public class GameServer  extends Thread
 		ObjectOutputStream oos = null;
 		DatagramPacket packet;
 		byte[] data;
-		InetAddress address = null;
-		try 
-		{
-			address = InetAddress.getByName("224.0.0.1");
-		} 
-		catch (UnknownHostException e1) 
-		{
-			e1.printStackTrace();
-		}
+
 		while(true)
 		{
-			
-			data = new byte[1024];
+			data = new byte[2024];
 			packet = new DatagramPacket(data, data.length);
 			try 
 			{
@@ -150,64 +183,34 @@ public class GameServer  extends Thread
 				e.printStackTrace();
 			} 
 			
-			if(gm.getProtocol().equals("movement"))
+			if(gm.getProtocol().equals("movement") && gm.player != null)
 			{
-				
-				
-				Player temp = playerMap.get(gm.player.getID());
-				
-				temp.setX(gm.player.getX());
-				temp.setY(gm.player.getY());
-				
-				//playerMap.get(gm.player.getID()).missiles = temp.missiles;
-				
-				System.out.println("GM Player Missile Size: " + gm.player.missiles.size());
-				
-				temp.missiles = gm.player.missiles;
-				///playerMap.get(gm.getID()).setX(gm.player.getX());
-				//playerMap.get(gm.getID()).setY(gm.player.getY());
-				
-				
-				//playerMap.get(gm.player.getID()) = gm.player.getY();
-				
-				gm = new GameMessage(gm.getID(), "movementupdate", "Movement Message");
-				
-				//System.out.println("Movement");
-				gm.playerMap = playerMap;
-				
-				System.out.println("Player Missile size: " + temp.missiles.size());
-				
-				data = serializeGM(baos, gm, oos);
-				
-				try 
+				synchronized(playerMap)
 				{
-					packet = new DatagramPacket(data, data.length, address, 4000);
-					socket.send(packet);
-				} 
-				catch (UnknownHostException e) 
-				{
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
+					playerMap.get(gm.player.getID()).setX(gm.player.getX());
+					playerMap.get(gm.player.getID()).setY(gm.player.getY());
+					playerMap.get(gm.player.getID()).missiles = gm.player.getMissiles();
+					gameRunning = true;
 				}
 			}
 			else if(gm.getProtocol().equals("assignid"))
 			{	
 				System.out.println("Assigned Client ID : " 
 						           + clientIDCounter + " For port : " + packet.getPort());
-				GameMessage assignID = new GameMessage(clientIDCounter, "assignedid", "" 
+				GameMessage assignID = new GameMessage(clientIDCounter, "assignedID", "" 
 						               + packet.getPort());	
-				Player player = new Player(clientIDCounter, 300, 300, "");
-				playerMap.put(clientIDCounter, player);
-				gm.playerMap = playerMap;
-				gm.player = player;
+				
+				gm.player.setClientID(clientIDCounter);
+				gm.player.setX(600);
+				gm.player.setY(400);
+				playerMap.put(clientIDCounter, gm.player);
+				assignID.playerMap = playerMap;
+				assignID.player = gm.player;
 				data = serializeGM(baos, assignID, oos);
 				sendData(data, packet.getAddress(), packet.getPort());					
 				++clientIDCounter;
 				gameRunning = true;
 			}
-			
-			
 		}
 	}
 	
@@ -232,7 +235,7 @@ public class GameServer  extends Thread
 	public byte[] serializeGM(ByteArrayOutputStream baos, GameMessage gm2, 
 									 ObjectOutputStream oos)
 	{
-		byte [] data = new byte [1024];
+		byte [] data = new byte [2024];
 		baos = new ByteArrayOutputStream();
 		try {
 			oos = new ObjectOutputStream(baos);
@@ -260,7 +263,6 @@ public class GameServer  extends Thread
 		}
 	}
 	
-	
 	public static void main(String[] args)
 	{
 		InputStreamReader isr = new InputStreamReader(System.in);
@@ -268,7 +270,6 @@ public class GameServer  extends Thread
 		try 
 		{
 			System.out.print("Please enter a valid port: ");
-
 			int port = Integer.parseInt(br.readLine());
 
 			while (port < 1024) 
@@ -287,5 +288,4 @@ public class GameServer  extends Thread
 			System.out.println(ioe.getMessage());
 		}
 	}
-	
 }

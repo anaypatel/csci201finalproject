@@ -1,52 +1,65 @@
 package sprites;
 
-import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.io.Serializable;
-import java.net.DatagramPacket;
 import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
 import client.Client;
-import serializedMessages.GameMessage;
 
 public class Player implements Serializable
 {
+	private static final long serialVersionUID = 1L;
 	private String playerSprite = "player";
 	private int mx;
 	private int my;
-	private int x = 300;
-	private int y = 300;
+	private int x;
+	private int y;
 	private int clientID;
-	
+	public int port;
+	private static Client c;
+	private String direction = "E";
 	public ArrayList<Projectile> missiles = new ArrayList<Projectile>();
 	
-	public Player(int clientID, int x, int y, String spriteName)
+	public Player(Client c)
 	{
-		//missiles = new ArrayList<Projectile>();
-		this.clientID = clientID;
-		this.x = x;
-		this.y = y;
-	}
-	
-	public Player()
-	{
-		
+		Player.c = c;
+		this.port = c.socket.getPort();
 	}
 	
 	 public void fire() 
 	 {
-		 System.out.println("Missile added");
-	       missiles.add(new Projectile(x, y,clientID, ""));
-		 
-		 /*	
-		 	byte[] data = new byte[1024];
-			DatagramPacket packet = new DatagramPacket(data, data.length);
-			System.out.println(c.getID() + "projectile  " + this.x + this.y);
-			GameMessage gm = new GameMessage(c.getID(), "projectile",this.x, this.y);
-			data = c.serializeGM(c.baos, gm, c.oos);
-			c.sendData(data);
-		*/
+		 //X:LEFT, Y:UP = Diagonal top left
+		 if(mx < 0 && my < 0)
+		 {
+			 direction = "NW"; 		 
+		 }
+		 //X:RIGHT, Y:DOWN = Diagonal bottom right
+		 else if (mx > 0 && my > 0)
+		 {
+			 direction = "SE"; 		 
+		 }
+		 //X:RIGHT, Y:UP = Diagonal Top Right
+		 else if(mx > 0 && my < 0)
+		 {
+			 direction = "NE";
+		 }
+		 //X:LEFT, Y:DOWN = Diagonal bottom left
+		 else if(mx < 0 && my > 0)
+		 {
+			 direction = "SW";
+		 }
+		 else if(mx > 0)
+			 direction = "E";
+		 else if(mx < 0)
+			 direction  = "W";
+		 else if(my > 0)
+			 direction ="S";
+		 else if(my < 0)
+			 direction = "N";
+
+	       missiles.add(new Projectile(x, y,clientID, direction));
+	       c.sendPlayerUpdate();
+
 	  }
 	 
 	public ArrayList<Projectile> getMissiles() 
@@ -70,37 +83,32 @@ public class Player implements Serializable
 	
 	public void move(Client c)
 	{
-		if(x < 1220 && x > 0)
+		if(x < 1280 && x > 0)
 		{
 			this.x = this.x + mx;
 		}		
 		else
 		{
-			if(x >= 1220)
+			if(x >= 1280)
 				x -= 1;
 			if(x <= 0 )
 				x += 1;
 		}
-		if(y > 0 && y < 589 )
+		if(y > 0 && y < 720 )
 		{
 			this.y = this.y + my;
 		}
 		else
 		{
-			if(y >= 589)
+			if(y >= 720)
 				y -= 1;
 			if(y <= 0 )
 				y += 1;
 		}
-		//System.out.println("x: " + this.x + " y: " + this.y);
+
 		if(mx != 0 || my != 0)
 		{
-			byte[] data = new byte[1024];
-			DatagramPacket packet = new DatagramPacket(data, data.length);
-			GameMessage gm = new GameMessage(c.getID(), "movement");
-			gm.player = this;
-			data = c.serializeGM(c.baos, gm, c.oos);
-        	c.sendData(data);
+			c.sendPlayerUpdate();
 		}
 	}
 	
@@ -126,55 +134,51 @@ public class Player implements Serializable
 	public void keyPressed(KeyEvent e)
 	{
 		int key = e.getKeyCode();
-		
-		
+
 		if (key == KeyEvent.VK_SPACE) 
 		{
-			if(missiles.size() <4)
+			if(missiles.size() < 1000)
 			{
 	            fire();
 			}   
-			System.out.println("Projectile fired");
 	    }
-		if(key == KeyEvent.VK_A)
+		if(key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT)
 		{
 			this.mx = -3;
 		}
-		if(key == KeyEvent.VK_D)
+		if(key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
 		{
 			this.mx = 3;
 		}
-		if(key == KeyEvent.VK_W)
+		if(key == KeyEvent.VK_W || key == KeyEvent.VK_UP)
 		{
 			this.my = -3;
 		}
-		if(key == KeyEvent.VK_S)
+		if(key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN)
 		{
 			this.my = 3;
-		}
-		
-		
+		}		
 	}
 	
 	public void keyReleased(KeyEvent e)
 	{
 		int key = e.getKeyCode();
 		
-		if(key == KeyEvent.VK_A)
+		if(key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT)
 		{
 			this.mx =0;
 		}
-		if(key == KeyEvent.VK_D)
+		if(key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
 		{
 			this.mx = 0;
 		}
-		if(key == KeyEvent.VK_W)
+		if(key == KeyEvent.VK_W || key == KeyEvent.VK_UP)
 		{
-			this.my = 0;
+			this.my = 0;	
 		}
-		if(key == KeyEvent.VK_S)
+		if(key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN)
 		{
-			this.my = 0;
+			this.my = 0;	
 		}
 	}
 }

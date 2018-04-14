@@ -10,16 +10,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ObjectOutputStream;
 import java.net.MulticastSocket;
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import client.Client;
-import serializedMessages.GameMessage;
 import sprites.Player;
-import sprites.Projectile;
 
 public class Board extends JPanel implements ActionListener
 {
@@ -27,7 +24,6 @@ public class Board extends JPanel implements ActionListener
 	public Player player;
 	private Timer timer;
 	private final int DELAY = 15;
-	private GameMessage gm;
 	private Client c;
 	public Board(MulticastSocket s, ObjectOutputStream oos, Client c)
 	{
@@ -41,7 +37,7 @@ public class Board extends JPanel implements ActionListener
 		setFocusable(true);
 		setBackground(Color.black);
 		setDoubleBuffered(true);
-		player = new Player();
+		player = new Player(c);
 		timer = new Timer(DELAY,this);
 		timer.start();	
 	}
@@ -57,57 +53,48 @@ public class Board extends JPanel implements ActionListener
 	private void doDrawing(Graphics g) 
 	{
 		Graphics2D g2d = (Graphics2D) g;
+		g2d.drawImage(c.background,0, 0, null);
 
 		if(c.playerMap != null)
 		{
 			for(Map.Entry<Integer,Player> entry : c.playerMap.entrySet())
 			{
-				//g2d.setClip(entry.getValue().getX()+2, entry.getValue().getY(), 43,90);
-				
-				//5,5 start on sprite sheet /8w / 8h
-				//6x6
-				/*
-				g2d.drawImage(c.playerSprite,
-						entry.getValue().getX() + 2, entry.getValue().getY() + 2,
-						entry.getValue().getX() + 8, entry.getValue().getY() +8,
-						5*8, 5*8,
-						(5+1)*8,  (5+1)*8,
-						this);
-				
-				*/
-				g2d.drawImage(c.playerSprite,
-						entry.getValue().getX(), entry.getValue().getY(),
-						entry.getValue().getX() + 50, entry.getValue().getY() + 50,
-						0, 0, 50, 50,
-						this);
-				
+				if( (Math.abs(player.getX() - entry.getValue().getX()) <1280) &&
+						(Math.abs(player.getY() - entry.getValue().getY()) < 720))
+				{
+					g2d.drawImage(c.playerSprite,
+							entry.getValue().getX(), 
+							entry.getValue().getY(),
+							entry.getValue().getX() + 25, 
+							entry.getValue().getY() + 25,
+							0, 0, 50, 50,
+							this);
+				}
 				for(int j = 0; j < entry.getValue().missiles.size(); ++j)
 				{
-					System.out.println("missile drawn?");
 					
-					
-					/*g2d.drawImage(c.playerSprite,
-							 entry.getValue().missiles.get(j).getX(),entry.getValue().missiles.get(j).getY(),
-							 entry.getValue().missiles.get(j).getX() + 50,entry.getValue().missiles.get(j).getY() + 50,
-							0, 0, 50, 50,
-							this);*/
-					
-					g2d.drawImage(c.projectileSprite,
-							 entry.getValue().missiles.get(j).getX(),
-							 entry.getValue().missiles.get(j).getY(),
-							 entry.getValue().missiles.get(j).getX() + 80,
-							 entry.getValue().missiles.get(j).getY() + 80,
-							 
-							 
-							this);
-					
+					if( (Math.abs(player.getX() - entry.getValue().missiles.get(j).getX()) < 1280) &&
+							(Math.abs(player.getY() - entry.getValue().missiles.get(j).getY()) < 720))
+					{
+						if(entry.getValue().missiles.get(j).getX()%2 == 0)
+						{
+							g2d.drawImage(c.proj1,
+								 entry.getValue().missiles.get(j).getX(),
+								 entry.getValue().missiles.get(j).getY(),
+								 this);
+						}
+						else
+						{
+							g2d.drawImage(c.proj2,
+								 entry.getValue().missiles.get(j).getX(),
+								 entry.getValue().missiles.get(j).getY(),
+								 entry.getValue().missiles.get(j).getX() + 15,
+								 entry.getValue().missiles.get(j).getY() + 15,
+								 0,0,20,20,
+								this);
+						}
+					}
 				}
-
-				//for(int j = 0; j < entry.getValue().missiles.size(); ++j)
-				//{
-				 //entry.getValue().missiles.get(j).move();
-				//}	
-				
 			}
 		}
 	
@@ -116,35 +103,12 @@ public class Board extends JPanel implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		move();	
-		updateMissiles();
+		move();
 	}
-	
-	 private void updateMissiles() {
 
-	        ArrayList<Projectile> missiles = player.missiles;
-
-	        for (int i = 0; i < missiles.size(); i++) {
-
-	            Projectile missile = missiles.get(i);
-
-	            if (missile.isVisible()) {
-
-	                missile.move();
-	            } else {
-
-	            	System.out.println("Removed missile");
-	                missiles.remove(i);
-	            }
-	        }
-	    }
 	private void move()
 	{
-		if(player != null)
-		{
-			player.move(c);	
-			repaint();
-		}
+		player.move(c);	
 	}
 	public class TAdapter extends KeyAdapter 
 	{

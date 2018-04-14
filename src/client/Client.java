@@ -2,7 +2,6 @@ package client;
 
 import java.awt.EventQueue;
 import java.awt.Image;
-import java.awt.event.KeyListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,7 +12,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +20,6 @@ import javax.swing.ImageIcon;
 import frames.Board;
 import frames.MainFrame;
 import serializedMessages.GameMessage;
-import server.Movement;
 import sprites.Player;
 
 public class Client extends Thread
@@ -32,31 +29,27 @@ public class Client extends Thread
 	public MulticastSocket socket;
 	private Board board;
 	public GameMessage gm = null;
-	public boolean running = true;
+	public boolean running = false;
 	private MulticastSocket ms = null;
 	public ByteArrayOutputStream baos = null;
 	private ByteArrayInputStream bais = null;
 	public ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	public Map<Integer, Player> playerMap;
-	//public ArrayList<Image> spriteList;
 	public Image playerSprite;
 	public Image projectileSprite;
+	public Image proj1, proj2;
+	public Image background;
 	
 	public Client()
 	{
 		playerMap = new HashMap<Integer, Player>();
 		boolean connected = false;
-	
-		//spriteList = new ArrayList<Image>();
-		
 		playerSprite = loadImage("player");
-		
 		projectileSprite = loadImage("projectile");
-		
-		//spriteList.add(playerSprite);
-		//spriteList.addAll(arg0)
-		
+		proj1 = loadImage("proj1");
+		proj2 = loadImage("proj2");	
+		background = loadImage("background");
 		
 		try 
 		{
@@ -70,6 +63,7 @@ public class Client extends Thread
 		EventQueue.invokeLater(() -> 
 		{
 			ex = new MainFrame(this.socket);
+			 ex.setLocationRelativeTo(null);
 	        ex.setVisible(true);    
 	    });
 		
@@ -85,12 +79,13 @@ public class Client extends Thread
 			        board = new Board(this.socket, oos, this);
 			        ex.setContentPane(board);
 			        ex.setLocationRelativeTo(null);
-			        ex.setResizable(true);
+			        ex.setResizable(false);
+			        ex.pack();
+			        ex.setSize(1280, 720);
 			        ex.getContentPane().revalidate();
 			        ex.repaint();
 			        ex.requestFocusInWindow();
 			        ex.addKeyListener(board.getKeyListeners()[0]);
-			        KeyListener[] e = ex.getKeyListeners();
 			        ex.setName("Game Board");
 			     
 				}
@@ -114,28 +109,24 @@ public class Client extends Thread
 		
 		while(this.clientID == -1) 
 		{
-			System.out.println("here");
-			GameMessage assignID = new GameMessage(-1, "assignid", "" + this.getId());	        
+			GameMessage assignID = new GameMessage(-1, "assignid", "" + this.getId());	
+			assignID.player = board.player;
 	        data = serializeGM(baos, assignID, oos);
 			try 
 			{
 				sendData(data);
-				data = new byte[1024];
+				data = new byte[2024];
 				packet = new DatagramPacket(data, data.length);
 		        socket.receive(packet);		        
-		        gm = deSearializeGM(data, bais, ois);	    
-		       // System.out.println(gm.getID() + " : " + gm.getProtocol() + "  " + gm.getMessage()
-		       // + "\nThis local Port: " + socket.getLocalPort() );
+		        gm = deSearializeGM(data, bais, ois);	 
+
 		        if(gm.getProtocol().equalsIgnoreCase("assignedID") 
 		        	&& gm.getMessage().trim().equalsIgnoreCase( String.valueOf(socket.getLocalPort())))
 		        {
-		        	this.clientID = gm.getID();
-		        	playerMap = gm.playerMap;	
-		        	
-		        	
-		        	//board.player.setX(gm.player.getX());
-		        	//board.player.setY(gm.player.getY());
-		        	
+		        	this.clientID = gm.getID();		 
+		        	playerMap = gm.playerMap;
+		        	board.player.setX(gm.player.getX());
+		        	board.player.setY(gm.player.getY());
 		        }
 			} 
 			catch (IOException e1) 
@@ -144,9 +135,46 @@ public class Client extends Thread
 			}
 		}
 		   this.start();
-		   board.repaint();
+		   
+
+		   /* Needs to be implemented to ensure server that client is still joined.
+		   while(true)
+		   {
+			   if(running)
+			   {
+				   	data = new byte[2024];
+					packet = new DatagramPacket(data, data.length);
+					GameMessage gm = new GameMessage(clientID, "connected", "");
+					gm.player = board.player;
+					data = serializeGM(baos, gm, oos);
+					sendData(data);
+					running = false;
+			   }
+			   
+				try 
+				{
+					Thread.sleep(0, 0);
+				} catch (InterruptedException e) 
+				{
+					e.printStackTrace();
+				}
+			}	
+			
+			*/
 	}
 	
+	
+	public void sendPlayerUpdate()
+	{
+		byte[] data = new byte[2024];
+		
+		data = new byte[1024];
+		
+		GameMessage gm = new GameMessage(clientID, "movement", "");
+		gm.player = board.player;
+		data = serializeGM(baos, gm, oos);
+		sendData(data);
+	}
 	
 	public Image loadImage(String name)
 	{
@@ -176,13 +204,13 @@ public class Client extends Thread
 
 		while(true)
 		{
-			 data = new byte[1024];
+			 data = new byte[2024];
 			 packet = new DatagramPacket(data, data.length);
-			 System.out.println("Game Messaage: " + gm.getMessage());
 			try 
 			{
 				ms.receive(packet);
-			} catch (IOException e) 
+			} 
+			catch (IOException e) 
 			{
 				e.printStackTrace();
 			} 
@@ -190,14 +218,13 @@ public class Client extends Thread
 			if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
 			{
 				playerMap = gm.playerMap;
-				
-				
+				board.player.missiles = gm.playerMap.get(this.clientID).getMissiles();
+				board.repaint();	
 			}  
 		}
 	}
 	
-	
-	
+
 	public GameMessage deSearializeGM(byte[] data, ByteArrayInputStream bais, 
 				  ObjectInputStream ois )
 	{
@@ -215,8 +242,6 @@ public class Client extends Thread
 		return gm1;
 	}
 
-	
-	
 	public byte[] serializeGM(ByteArrayOutputStream baos, GameMessage gm2, 
 				 ObjectOutputStream oos)
 	{
@@ -235,11 +260,7 @@ public class Client extends Thread
 		}
 		return data;
 	}
-	
-	
-	
-	
-	
+
 	public void sendData(byte[] data)
 	{
 		DatagramPacket packet = new DatagramPacket(data, data.length, socket.getInetAddress(), socket.getPort());
@@ -255,10 +276,7 @@ public class Client extends Thread
 	{
 		return this.clientID;
 	}
-	
-	
-	
-	
+	@SuppressWarnings("unused")
 	public static void main(String [] args) throws InvocationTargetException, InterruptedException
 	{
 		Client gc = new Client();
