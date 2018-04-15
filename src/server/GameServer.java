@@ -11,23 +11,27 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import serializedMessages.GameMessage;
 import sprites.Player;
+import sprites.Projectile;
 
 public class GameServer  extends Thread
 {
 	private int clientIDCounter = 0;
 	private Map<Integer, Player> playerMap;
 	private MulticastSocket socket;
-	private GameMessage gm;
-	private boolean gameRunning;
+	private GameMessage gm = new GameMessage(-1, "" , "");
+	private boolean gameRunning, ready;
 	public GameServer(int port)
 	{
 		gameRunning = false;
-		playerMap = new HashMap<Integer, Player>();
+		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
+
+		
 		try 
 		{
 			System.out.println("Binding to port: " + port);
@@ -61,14 +65,22 @@ public class GameServer  extends Thread
 		
 		while(true)
 		{
-			try 
+			/*
+			System.out.println("Player Map Iteration");
+			
+			for(int i = 0; i < playerMap.size(); ++i)
 			{
-				Thread.sleep(9, 0);
-			} catch (InterruptedException e) 
-			{
-				e.printStackTrace();
+				
+				
+				System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
+						+" y: " + playerMap.get(i).getY());
 			}
 			
+			*/
+			//if(ready)
+			//{
+				//System.out.println("Ready");
+			/*
 			Map<Integer, Player> collisionMap = new HashMap<Integer, Player>();
 			
 			for(int i = 0; i < playerMap.size(); ++i)
@@ -94,6 +106,7 @@ public class GameServer  extends Thread
 				{
 					for(int j = 0; j < playerMap.get(i).missiles.size(); ++j)
 					{		
+						
 			            if (playerMap.get(i).missiles.get(j).isVisible()) 
 			            {
 			            	if((collisionMap.containsKey(playerMap.get(i).missiles.get(j).getX())) &&
@@ -115,7 +128,7 @@ public class GameServer  extends Thread
 		            		{
 		            			playerMap.get(i).missiles.get(j).move();
 		            		}
-			            	
+			            	System.out.println("Main game true from main thread");
 			            	gameRunning = true;
 						}
 			            else 
@@ -127,29 +140,59 @@ public class GameServer  extends Thread
 				
 			}
 			
-			if(gameRunning)
+			*/
+			//}
+			
+			if(playerMap.size() > 0)
 			{
-				gameRunning = false;
-				gm = new GameMessage(-1, "movementupdate", "GameLoop Message");
-				gm.playerMap = playerMap;
-				data = serializeGM(baos, gm, oos);
 				
-				try 
+				for(int i = 0; i < playerMap.size(); ++i)
 				{
-					packet = new DatagramPacket(data, data.length, address, 4000);
-					socket.send(packet);
-				} 
-				catch (UnknownHostException e) 
-				{
-					e.printStackTrace();
-				} catch (IOException e) 
-				{
-					e.printStackTrace();
+					if(playerMap.get(i).missiles.size() > 0)
+					{
+						for(int j = 0; j < playerMap.get(i).missiles.size(); ++j)
+						{		
+							
+				            if (playerMap.get(i).missiles.get(j).isVisible()) 
+				            {
+				            	playerMap.get(i).missiles.get(j).move();
+				            	gameRunning = true;
+				            }
+				            else
+				            {
+				            	playerMap.get(i).missiles.remove(j);
+				            }
+				        }
+					}
 				}
-			}	
+			
+			}
+				if(gameRunning)
+				{
+					gameRunning = false;
+					gm = new GameMessage(-1, "movementupdate", "GameLoop Message");
+					gm.playerMap = playerMap;
+					data = serializeGM(baos, gm, oos);
+					
+					try 
+					{
+						packet = new DatagramPacket(data, data.length, address, 4000);
+						socket.send(packet);
+					} 
+					catch (UnknownHostException e) 
+					{
+						e.printStackTrace();
+					} catch (IOException e) 
+					{
+						e.printStackTrace();
+					}
+				}	
+			
+			
+			
 			try
 			{
-				Thread.sleep(0,0);
+				Thread.sleep(9,0);
 			}
 			catch(InterruptedException e)
 			{
@@ -157,6 +200,7 @@ public class GameServer  extends Thread
 			}
 			
 		}
+		
 	}
 	
 
@@ -171,27 +215,125 @@ public class GameServer  extends Thread
 
 		while(true)
 		{
-			data = new byte[2024];
+			data = new byte[4024];
 			packet = new DatagramPacket(data, data.length);
 			try 
 			{
 				socket.receive(packet);	
-				gm = deSearializeGM(data, bais, ois);			
+				//
+			//	ready = false;
+				gm = deSearializeGM(data, bais, ois);		
+				
+				//System.out.println(gm.getProtocol());
+			
+				
 			} 
 			catch (IOException e) 
 			{
 				e.printStackTrace();
 			} 
 			
-			if(gm.getProtocol().equals("movement") && gm.player != null)
+			if(gm.getProtocol().equals("movement"))
 			{
-				synchronized(playerMap)
+				/*
+				System.out.println("GM Protocol: " 
+									+ gm.getProtocol() 
+									+ " ClientID: " 
+									+ gm.getID()
+									+"\n Coordinates Received: X: " 
+									+ gm.player.getX() + " Y: " 
+									+ gm.player.getY() );
+				
+				System.out.println("BEFORE Player Map Iteration");
+				
+				for(int i = 0; i < playerMap.size(); ++i)
 				{
-					playerMap.get(gm.player.getID()).setX(gm.player.getX());
-					playerMap.get(gm.player.getID()).setY(gm.player.getY());
-					playerMap.get(gm.player.getID()).missiles = gm.player.getMissiles();
-					gameRunning = true;
+					
+					
+					System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
+							+" y: " + playerMap.get(i).getY());
 				}
+				*/
+					//Player temp = playerMap.get(gm.player.getID());
+					//temp.setX(gm.player.getX());
+					//temp.setY(gm.player.getY());
+				
+					
+					//playerMap.get(gm.player.getID()).setX(gm.player.getX());
+					//playerMap.get(gm.player.getID()).setY(gm.player.getY());
+					//playerMap.get(gm.player.getID()).missiles = gm.player.getMissiles();
+					
+					for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+					{
+						if(gm.getID() == entry.getKey())
+						{
+							//System.out.println("Key Matched: " + gm.getID());
+							entry.getValue().setX(gm.player.getX());
+							entry.getValue().setY(gm.player.getY());
+							entry.getValue().direction = gm.player.direction;
+							
+						}
+					}
+				
+				
+					/*
+					System.out.println("AFTER Player Map Iteration");
+					
+					for(int i = 0; i < playerMap.size(); ++i)
+					{
+						
+						
+						System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
+								+" y: " + playerMap.get(i).getY());
+					}
+				*/
+					//playerMap.get(gm.player.getID()).setX(gm.player.getX());
+					//playerMap.get(gm.player.getID()).setY(gm.player.getY());
+					//playerMap.get(gm.player.getID()).missiles = gm.player.getMissiles();
+					gameRunning = true;
+			}
+			else if(gm.getProtocol().equals("projectile"))
+			{
+				
+				/*
+				System.out.println("GM Protocol: " 
+					+ gm.getProtocol() 
+					+ " ClientID: " 
+					+ gm.getID()
+					+"\n Coordinates Received: X: " 
+					+ gm.player.getX() + " Y: " 
+					+ gm.player.getY() );
+				
+				*/
+				
+				//Player temp = playerMap.get(gm.player.getID());
+				//temp.setX(gm.player.getX());
+				//temp.setY(gm.player.getY());
+				//temp.missiles.add(new Projectile(temp.getX(), temp.getY(),temp.getID(), temp.direction));
+				
+				
+				for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+				{
+					if(gm.getID() == entry.getKey())
+					{
+						//System.out.println("Key Matched: " + gm.getID());
+						entry.getValue().missiles.add(new Projectile(entry.getValue().getX(), 
+								entry.getValue().getY(),
+								entry.getValue().getID(), 
+								entry.getValue().direction));
+					}
+				}
+				
+				
+				
+				//playerMap.get(gm.player.getID()).setX(gm.player.getX());
+				//playerMap.get(gm.player.getID()).setY(gm.player.getY());
+				//playerMap.get(gm.player.getID()).missiles.add(new Projectile(x, y,clientID, direction))
+				
+				
+				
+				gameRunning = true;
+				
 			}
 			else if(gm.getProtocol().equals("assignid"))
 			{	
@@ -211,6 +353,8 @@ public class GameServer  extends Thread
 				++clientIDCounter;
 				gameRunning = true;
 			}
+			
+			//ready = true;
 		}
 	}
 	
@@ -235,7 +379,7 @@ public class GameServer  extends Thread
 	public byte[] serializeGM(ByteArrayOutputStream baos, GameMessage gm2, 
 									 ObjectOutputStream oos)
 	{
-		byte [] data = new byte [2024];
+		byte [] data = new byte [4024];
 		baos = new ByteArrayOutputStream();
 		try {
 			oos = new ObjectOutputStream(baos);

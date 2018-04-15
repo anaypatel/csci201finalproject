@@ -2,6 +2,7 @@ package client;
 
 import java.awt.EventQueue;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +45,7 @@ public class Client extends Thread
 	
 	public Client()
 	{
-		playerMap = new HashMap<Integer, Player>();
+		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
 		boolean connected = false;
 		playerSprite = loadImage("player");
 		projectileSprite = loadImage("projectile");
@@ -82,6 +84,7 @@ public class Client extends Thread
 			        ex.setResizable(false);
 			        ex.pack();
 			        ex.setSize(1280, 720);
+			        ex.setFocusable(true);;
 			        ex.getContentPane().revalidate();
 			        ex.repaint();
 			        ex.requestFocusInWindow();
@@ -104,7 +107,7 @@ public class Client extends Thread
 			}
 		}
 		
-		byte[] data = new byte[1024];
+		byte[] data = new byte[4024];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
 		
 		while(this.clientID == -1) 
@@ -123,6 +126,9 @@ public class Client extends Thread
 		        if(gm.getProtocol().equalsIgnoreCase("assignedID") 
 		        	&& gm.getMessage().trim().equalsIgnoreCase( String.valueOf(socket.getLocalPort())))
 		        {
+		        	System.out.println("Client ID Assigned: " + gm.getID() + " Starting Coordinate ("+gm.player.getX()
+		        	+ "," +gm.player.getY() +")");
+		        	
 		        	this.clientID = gm.getID();		 
 		        	playerMap = gm.playerMap;
 		        	board.player.setX(gm.player.getX());
@@ -161,19 +167,39 @@ public class Client extends Thread
 			}	
 			
 			*/
+
 	}
+	// Need to work on fiiguring out why the message is either not sent or is not being received correctly!@
 	
-	
-	public void sendPlayerUpdate()
+	public void sendPlayerUpdate(String type)
 	{
-		byte[] data = new byte[2024];
+		byte[] data = new byte[4024];
 		
-		data = new byte[1024];
+		data = new byte[4024];
+		//System.out.println("Entered Send Player Update: " + type);
 		
-		GameMessage gm = new GameMessage(clientID, "movement", "");
-		gm.player = board.player;
-		data = serializeGM(baos, gm, oos);
-		sendData(data);
+		if(type.equalsIgnoreCase("movement"))
+		{
+			//System.out.println("entered movement message");
+			GameMessage gm = new GameMessage(clientID, "movement", "");
+			gm.player = board.player;
+			data = serializeGM(baos, gm, oos);
+			sendData(data);
+			
+		}
+		else if(type.equalsIgnoreCase("projectile"))
+		{
+			//System.out.println("entered movement message");
+			GameMessage gm = new GameMessage(clientID, "projectile", "");
+			gm.player = board.player;
+			data = serializeGM(baos, gm, oos);
+			sendData(data);
+		}
+			
+		
+		
+		
+		
 	}
 	
 	public Image loadImage(String name)
@@ -204,7 +230,7 @@ public class Client extends Thread
 
 		while(true)
 		{
-			 data = new byte[2024];
+			 data = new byte[4024];
 			 packet = new DatagramPacket(data, data.length);
 			try 
 			{
@@ -218,9 +244,22 @@ public class Client extends Thread
 			if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
 			{
 				playerMap = gm.playerMap;
-				board.player.missiles = gm.playerMap.get(this.clientID).getMissiles();
+				//System.out.println("Movement Update Sent From " + this.clientID + "  x: " + board.player.getX()
+				//+ "  y: " + board.player.getY());
+				//board.player = gm.playerMap.get(this.clientID);
+				//board.player.missiles = gm.playerMap.get(this.clientID).getMissiles();
+				
+				 /*
+				System.out.println("Player Map Iteration");
+				for(int i = 0; i < playerMap.size(); ++i)
+				{
+					System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
+							+" y: " + playerMap.get(i).getY());
+				}
+				*/
+				
 				board.repaint();	
-			}  
+			}
 		}
 	}
 	

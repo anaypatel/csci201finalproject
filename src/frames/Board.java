@@ -65,8 +65,8 @@ public class Board extends JPanel implements ActionListener
 					g2d.drawImage(c.playerSprite,
 							entry.getValue().getX(), 
 							entry.getValue().getY(),
-							entry.getValue().getX() + 25, 
-							entry.getValue().getY() + 25,
+							entry.getValue().getX() + 50, 
+							entry.getValue().getY() + 50,
 							0, 0, 50, 50,
 							this);
 				}
@@ -76,23 +76,25 @@ public class Board extends JPanel implements ActionListener
 					if( (Math.abs(player.getX() - entry.getValue().missiles.get(j).getX()) < 1280) &&
 							(Math.abs(player.getY() - entry.getValue().missiles.get(j).getY()) < 720))
 					{
-						if(entry.getValue().missiles.get(j).getX()%2 == 0)
-						{
+						//if(entry.getValue().missiles.get(j).getX()%2 == 0)
+						//{
 							g2d.drawImage(c.proj1,
 								 entry.getValue().missiles.get(j).getX(),
 								 entry.getValue().missiles.get(j).getY(),
+							
 								 this);
-						}
-						else
+					//	}
+							/*	else
 						{
 							g2d.drawImage(c.proj2,
 								 entry.getValue().missiles.get(j).getX(),
 								 entry.getValue().missiles.get(j).getY(),
-								 entry.getValue().missiles.get(j).getX() + 15,
-								 entry.getValue().missiles.get(j).getY() + 15,
+								 entry.getValue().missiles.get(j).getX() + 25,
+								 entry.getValue().missiles.get(j).getY() + 25,
 								 0,0,20,20,
 								this);
 						}
+						*/
 					}
 				}
 			}

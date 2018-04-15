@@ -11,7 +11,7 @@ public class GameMessage  implements Serializable
 	private int clientID;
 	private String protocol;
 	private String message;
-	public Player player;
+	public Player player = new Player();
 	public Map<Integer, Player> playerMap;
 	public Movement m;
 	
@@ -20,6 +20,7 @@ public class GameMessage  implements Serializable
 		this.clientID= clientID;
 		this.protocol = protocol;
 		this.message = message;
+
 	}
 	
 	public String getMessage()

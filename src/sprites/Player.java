@@ -17,7 +17,7 @@ public class Player implements Serializable
 	private int clientID;
 	public int port;
 	private static Client c;
-	private String direction = "E";
+	public String direction = "E";
 	public ArrayList<Projectile> missiles = new ArrayList<Projectile>();
 	
 	public Player(Client c)
@@ -26,7 +26,11 @@ public class Player implements Serializable
 		this.port = c.socket.getPort();
 	}
 	
-	 public void fire() 
+	 public Player() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public void fire() 
 	 {
 		 //X:LEFT, Y:UP = Diagonal top left
 		 if(mx < 0 && my < 0)
@@ -57,8 +61,9 @@ public class Player implements Serializable
 		 else if(my < 0)
 			 direction = "N";
 
-	       missiles.add(new Projectile(x, y,clientID, direction));
-	       c.sendPlayerUpdate();
+	      // missiles.add(new Projectile(x, y,clientID, direction));
+		// System.out.println("Sent Projectile");
+	       c.sendPlayerUpdate("projectile");
 
 	  }
 	 
@@ -108,7 +113,8 @@ public class Player implements Serializable
 
 		if(mx != 0 || my != 0)
 		{
-			c.sendPlayerUpdate();
+		//	System.out.println("Sent movement");
+			c.sendPlayerUpdate("movement");
 		}
 	}
 	
@@ -137,7 +143,7 @@ public class Player implements Serializable
 
 		if (key == KeyEvent.VK_SPACE) 
 		{
-			if(missiles.size() < 1000)
+			if(missiles.size() < 5)
 			{
 	            fire();
 			}   
