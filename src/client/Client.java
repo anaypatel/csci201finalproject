@@ -3,8 +3,10 @@ package client;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import frames.Board;
@@ -38,20 +41,22 @@ public class Client extends Thread
 	public ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	public Map<Integer, Player> playerMap;
-	public Image playerSprite;
-	public Image projectileSprite;
-	public Image proj1, proj2;
 	public Image background;
-	
+	public BufferedImage playerSheet, projectileSheet;
 	public Client()
 	{
 		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
-		boolean connected = false;
-		playerSprite = loadImage("player");
-		projectileSprite = loadImage("projectile");
-		proj1 = loadImage("proj1");
-		proj2 = loadImage("proj2");	
+		boolean connected = false;;
 		background = loadImage("background");
+		
+		try 
+		{
+			projectileSheet = ImageIO.read(getClass().getResource("/resources/projectile.png"));
+			playerSheet = ImageIO.read(getClass().getResource("/resources/player.png"));
+		} 
+		catch (IOException e3) {
+			e3.printStackTrace();
+		}
 		
 		try 
 		{

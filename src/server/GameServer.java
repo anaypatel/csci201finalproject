@@ -147,6 +147,7 @@ public class GameServer  extends Thread
 				Player temp = playerMap.get(gm.player.getID());
 				temp.setX(gm.player.getX());
 				temp.setY(gm.player.getY());
+				temp.direction = gm.player.direction;
 				gameRunning = true;
 			}
 			else if(gm.getProtocol().equals("projectile"))
@@ -164,6 +165,20 @@ public class GameServer  extends Thread
 						           + clientIDCounter + " For port : " + packet.getPort());
 				GameMessage assignID = new GameMessage(clientIDCounter, "assignedID", "" 
 						               + packet.getPort());	
+				
+				//Assign colors. Needs work
+				if(clientIDCounter + 1 % 8 >=0 && clientIDCounter + 1 % 8 <= 4)
+				{
+					gm.player.playerColorX = (clientIDCounter + 1 % 8) * 96;  
+					gm.player.playerColorY = 0;
+				
+				}
+				else
+				{
+					gm.player.playerColorX = (clientIDCounter + 1 % 4) * 96; 
+					gm.player.playerColorY = 192;
+				}
+				
 				gm.player.setClientID(clientIDCounter);
 				gm.player.setX(600);
 				gm.player.setY(400);

@@ -3,11 +3,13 @@ package frames;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.ObjectOutputStream;
 import java.net.MulticastSocket;
 import java.util.Map;
@@ -62,39 +64,62 @@ public class Board extends JPanel implements ActionListener
 				if( (Math.abs(player.getX() - entry.getValue().getX()) <1280) &&
 						(Math.abs(player.getY() - entry.getValue().getY()) < 720))
 				{
-					g2d.drawImage(c.playerSprite,
+					int spriteX = entry.getValue().playerColorX;
+					int spriteY = entry.getValue().playerColorY;
+					
+					String direction = entry.getValue().direction;
+					System.out.println("Direction: " + direction);
+					
+					if(direction.equals("N") || direction.equals("NE") || direction.equals("NW"))
+					{
+						spriteX += 0; spriteY += 145;
+					}
+					else if(direction.equals("E"))
+					{
+						spriteX += 0; spriteY += 100;
+					}
+					else if(direction.equals("S") || direction.equals("SE") || direction.equals("SW"))
+					{
+						spriteX += 0; spriteY += 0;
+					}
+					else if(direction.equals("W"))
+					{	
+						spriteX += 0; spriteY += 50;
+					}
+						
+					BufferedImage temp = c.playerSheet.getSubimage(spriteX, 
+										 spriteY, 48, 51);
+					g2d.drawImage(temp,
 							entry.getValue().getX(), 
-							entry.getValue().getY(),
-							entry.getValue().getX() + 50, 
-							entry.getValue().getY() + 50,
-							0, 0, 50, 50,
+							entry.getValue().getY(), 70,70,
 							this);
 				}
+				
+				BufferedImage temp2 = c.projectileSheet.getSubimage(656,135,
+						 117, 117);
+				BufferedImage temp3 = c.projectileSheet.getSubimage(656,270,
+						 113, 114);
 				for(int j = 0; j < entry.getValue().missiles.size(); ++j)
 				{
 					
 					if( (Math.abs(player.getX() - entry.getValue().missiles.get(j).getX()) < 1280) &&
 							(Math.abs(player.getY() - entry.getValue().missiles.get(j).getY()) < 720))
 					{
-						//if(entry.getValue().missiles.get(j).getX()%2 == 0)
-						//{
-							g2d.drawImage(c.proj1,
-								 entry.getValue().missiles.get(j).getX(),
-								 entry.getValue().missiles.get(j).getY(),
-							
-								 this);
-					//	}
-							/*	else
+						if(entry.getValue().missiles.get(j).getX()%2 == 0)
 						{
-							g2d.drawImage(c.proj2,
+							g2d.drawImage(temp2,
 								 entry.getValue().missiles.get(j).getX(),
-								 entry.getValue().missiles.get(j).getY(),
-								 entry.getValue().missiles.get(j).getX() + 25,
-								 entry.getValue().missiles.get(j).getY() + 25,
-								 0,0,20,20,
+								 entry.getValue().missiles.get(j).getY(),40,40,
+								 this);
+						}
+								else
+						{
+							g2d.drawImage(temp3,
+								 entry.getValue().missiles.get(j).getX(),
+								 entry.getValue().missiles.get(j).getY(),40,40,
 								this);
 						}
-						*/
+						
 					}
 				}
 			}

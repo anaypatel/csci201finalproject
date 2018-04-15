@@ -19,7 +19,7 @@ public class Player implements Serializable
 	private static Client c;
 	public String direction = "E";
 	public ArrayList<Projectile> missiles = new ArrayList<Projectile>();
-	
+	public int playerColorY = 0, playerColorX = 0;
 	public Player(Client c)
 	{
 		Player.c = c;
@@ -32,34 +32,7 @@ public class Player implements Serializable
 
 	public void fire() 
 	 {
-		 //X:LEFT, Y:UP = Diagonal top left
-		 if(mx < 0 && my < 0)
-		 {
-			 direction = "NW"; 		 
-		 }
-		 //X:RIGHT, Y:DOWN = Diagonal bottom right
-		 else if (mx > 0 && my > 0)
-		 {
-			 direction = "SE"; 		 
-		 }
-		 //X:RIGHT, Y:UP = Diagonal Top Right
-		 else if(mx > 0 && my < 0)
-		 {
-			 direction = "NE";
-		 }
-		 //X:LEFT, Y:DOWN = Diagonal bottom left
-		 else if(mx < 0 && my > 0)
-		 {
-			 direction = "SW";
-		 }
-		 else if(mx > 0)
-			 direction = "E";
-		 else if(mx < 0)
-			 direction  = "W";
-		 else if(my > 0)
-			 direction ="S";
-		 else if(my < 0)
-			 direction = "N";
+		 
 
 	      // missiles.add(new Projectile(x, y,clientID, direction));
 		// System.out.println("Sent Projectile");
@@ -111,6 +84,40 @@ public class Player implements Serializable
 				y += 1;
 		}
 
+		
+		
+		//X:LEFT, Y:UP = Diagonal top left
+		 if(mx < 0 && my < 0)
+		 {
+			 direction = "NW"; 		 
+		 }
+		 //X:RIGHT, Y:DOWN = Diagonal bottom right
+		 else if (mx > 0 && my > 0)
+		 {
+			 direction = "SE"; 		 
+		 }
+		 //X:RIGHT, Y:UP = Diagonal Top Right
+		 else if(mx > 0 && my < 0)
+		 {
+			 direction = "NE";
+		 }
+		 //X:LEFT, Y:DOWN = Diagonal bottom left
+		 else if(mx < 0 && my > 0)
+		 {
+			 direction = "SW";
+		 }
+		 else if(mx > 0)
+			 direction = "E";
+		 else if(mx < 0)
+			 direction  = "W";
+		 else if(my > 0)
+			 direction ="S";
+		 else if(my < 0)
+			 direction = "N";
+		
+		
+		
+		
 		if(mx != 0 || my != 0)
 		{
 		//	System.out.println("Sent movement");
