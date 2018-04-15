@@ -31,7 +31,6 @@ public class GameServer  extends Thread
 		gameRunning = false;
 		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
 
-		
 		try 
 		{
 			System.out.println("Binding to port: " + port);
@@ -64,85 +63,7 @@ public class GameServer  extends Thread
 		}
 		
 		while(true)
-		{
-			/*
-			System.out.println("Player Map Iteration");
-			
-			for(int i = 0; i < playerMap.size(); ++i)
-			{
-				
-				
-				System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
-						+" y: " + playerMap.get(i).getY());
-			}
-			
-			*/
-			//if(ready)
-			//{
-				//System.out.println("Ready");
-			/*
-			Map<Integer, Player> collisionMap = new HashMap<Integer, Player>();
-			
-			for(int i = 0; i < playerMap.size(); ++i)
-			{
-				Player temp = playerMap.get(i);
-				if(collisionMap.containsKey(temp.getX()))
-				{
-					Player possibleCollider = collisionMap.get(temp.getX());
-					if(temp.getY() == possibleCollider.getY())
-					{
-						System.out.println("Two players Collided!");
-					}
-				}
-				else
-				{
-					collisionMap.put(temp.getX(), temp);
-				}
-				
-			}
-			for(int i = 0; i < playerMap.size(); ++i)
-			{
-				if(playerMap.get(i).missiles.size() > 0)
-				{
-					for(int j = 0; j < playerMap.get(i).missiles.size(); ++j)
-					{		
-						
-			            if (playerMap.get(i).missiles.get(j).isVisible()) 
-			            {
-			            	if((collisionMap.containsKey(playerMap.get(i).missiles.get(j).getX())) &&
-			            	   (playerMap.get(i).getID() !=  
-			            		collisionMap.get(playerMap.get(i).missiles.get(j).getX()).getID()))
-			            	{
-			            		if(collisionMap.get(playerMap.get(i).missiles.get(j).getX()).getY() ==
-			            				playerMap.get(i).missiles.get(j).getY())
-			            		{
-			            			System.out.println("Collision with projectile detected");
-			            			playerMap.get(i).missiles.get(j).setVisible(false);
-			            		}
-			            		else
-			            		{
-			            			playerMap.get(i).missiles.get(j).move();
-			            		}
-			            	}
-			            	else
-		            		{
-		            			playerMap.get(i).missiles.get(j).move();
-		            		}
-			            	System.out.println("Main game true from main thread");
-			            	gameRunning = true;
-						}
-			            else 
-			            {
-			            	playerMap.get(i).missiles.remove(j);
-			            }
-					}	
-				}
-				
-			}
-			
-			*/
-			//}
-			
+		{	
 			if(playerMap.size() > 0)
 			{
 				
@@ -165,7 +86,6 @@ public class GameServer  extends Thread
 				        }
 					}
 				}
-			
 			}
 				if(gameRunning)
 				{
@@ -187,20 +107,15 @@ public class GameServer  extends Thread
 						e.printStackTrace();
 					}
 				}	
-			
-			
-			
 			try
 			{
-				Thread.sleep(9,0);
+				Thread.sleep(15,0);
 			}
 			catch(InterruptedException e)
 			{
 				e.printStackTrace();
-			}
-			
-		}
-		
+			}	
+		}	
 	}
 	
 
@@ -220,13 +135,7 @@ public class GameServer  extends Thread
 			try 
 			{
 				socket.receive(packet);	
-				//
-			//	ready = false;
-				gm = deSearializeGM(data, bais, ois);		
-				
-				//System.out.println(gm.getProtocol());
-			
-				
+				gm = deSearializeGM(data, bais, ois);			
 			} 
 			catch (IOException e) 
 			{
@@ -235,103 +144,17 @@ public class GameServer  extends Thread
 			
 			if(gm.getProtocol().equals("movement"))
 			{
-				/*
-				System.out.println("GM Protocol: " 
-									+ gm.getProtocol() 
-									+ " ClientID: " 
-									+ gm.getID()
-									+"\n Coordinates Received: X: " 
-									+ gm.player.getX() + " Y: " 
-									+ gm.player.getY() );
-				
-				System.out.println("BEFORE Player Map Iteration");
-				
-				for(int i = 0; i < playerMap.size(); ++i)
-				{
-					
-					
-					System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
-							+" y: " + playerMap.get(i).getY());
-				}
-				*/
-					//Player temp = playerMap.get(gm.player.getID());
-					//temp.setX(gm.player.getX());
-					//temp.setY(gm.player.getY());
-				
-					
-					//playerMap.get(gm.player.getID()).setX(gm.player.getX());
-					//playerMap.get(gm.player.getID()).setY(gm.player.getY());
-					//playerMap.get(gm.player.getID()).missiles = gm.player.getMissiles();
-					
-					for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
-					{
-						if(gm.getID() == entry.getKey())
-						{
-							//System.out.println("Key Matched: " + gm.getID());
-							entry.getValue().setX(gm.player.getX());
-							entry.getValue().setY(gm.player.getY());
-							entry.getValue().direction = gm.player.direction;
-							
-						}
-					}
-				
-				
-					/*
-					System.out.println("AFTER Player Map Iteration");
-					
-					for(int i = 0; i < playerMap.size(); ++i)
-					{
-						
-						
-						System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
-								+" y: " + playerMap.get(i).getY());
-					}
-				*/
-					//playerMap.get(gm.player.getID()).setX(gm.player.getX());
-					//playerMap.get(gm.player.getID()).setY(gm.player.getY());
-					//playerMap.get(gm.player.getID()).missiles = gm.player.getMissiles();
-					gameRunning = true;
+				Player temp = playerMap.get(gm.player.getID());
+				temp.setX(gm.player.getX());
+				temp.setY(gm.player.getY());
+				gameRunning = true;
 			}
 			else if(gm.getProtocol().equals("projectile"))
 			{
-				
-				/*
-				System.out.println("GM Protocol: " 
-					+ gm.getProtocol() 
-					+ " ClientID: " 
-					+ gm.getID()
-					+"\n Coordinates Received: X: " 
-					+ gm.player.getX() + " Y: " 
-					+ gm.player.getY() );
-				
-				*/
-				
-				//Player temp = playerMap.get(gm.player.getID());
-				//temp.setX(gm.player.getX());
-				//temp.setY(gm.player.getY());
-				//temp.missiles.add(new Projectile(temp.getX(), temp.getY(),temp.getID(), temp.direction));
-				
-				
-				for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
-				{
-					if(gm.getID() == entry.getKey())
-					{
-						//System.out.println("Key Matched: " + gm.getID());
-						entry.getValue().missiles.add(new Projectile(entry.getValue().getX(), 
-								entry.getValue().getY(),
-								entry.getValue().getID(), 
-								entry.getValue().direction));
-					}
-				}
-				
-				
-				
-				//playerMap.get(gm.player.getID()).setX(gm.player.getX());
-				//playerMap.get(gm.player.getID()).setY(gm.player.getY());
-				//playerMap.get(gm.player.getID()).missiles.add(new Projectile(x, y,clientID, direction))
-				
-				
-				
+				Player temp = playerMap.get(gm.player.getID());
+				temp.setX(gm.player.getX());
+				temp.setY(gm.player.getY());
+				temp.missiles.add(new Projectile(temp.getX(), temp.getY(),temp.getID(), gm.player.direction));
 				gameRunning = true;
 				
 			}
@@ -341,7 +164,6 @@ public class GameServer  extends Thread
 						           + clientIDCounter + " For port : " + packet.getPort());
 				GameMessage assignID = new GameMessage(clientIDCounter, "assignedID", "" 
 						               + packet.getPort());	
-				
 				gm.player.setClientID(clientIDCounter);
 				gm.player.setX(600);
 				gm.player.setY(400);
@@ -353,8 +175,6 @@ public class GameServer  extends Thread
 				++clientIDCounter;
 				gameRunning = true;
 			}
-			
-			//ready = true;
 		}
 	}
 	

@@ -133,6 +133,7 @@ public class Client extends Thread
 		        	playerMap = gm.playerMap;
 		        	board.player.setX(gm.player.getX());
 		        	board.player.setY(gm.player.getY());
+		        	board.player.setClientID(this.clientID);
 		        }
 			} 
 			catch (IOException e1) 
@@ -244,20 +245,6 @@ public class Client extends Thread
 			if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
 			{
 				playerMap = gm.playerMap;
-				//System.out.println("Movement Update Sent From " + this.clientID + "  x: " + board.player.getX()
-				//+ "  y: " + board.player.getY());
-				//board.player = gm.playerMap.get(this.clientID);
-				//board.player.missiles = gm.playerMap.get(this.clientID).getMissiles();
-				
-				 /*
-				System.out.println("Player Map Iteration");
-				for(int i = 0; i < playerMap.size(); ++i)
-				{
-					System.out.println(playerMap.get(i).getID() + " | x: " + playerMap.get(i).getX()
-							+" y: " + playerMap.get(i).getY());
-				}
-				*/
-				
 				board.repaint();	
 			}
 		}
