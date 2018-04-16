@@ -1,5 +1,6 @@
 package sprites;
 
+import java.awt.Rectangle;
 import java.io.Serializable;
 
 public class Projectile implements Serializable
@@ -8,8 +9,8 @@ public class Projectile implements Serializable
 	private int x, y;
 	public int clientID;
 	
-	private final int BOARD_WIDTH = 1280;
-	private final int BOARD_HEIGHT = 720;
+	private final int BOARD_WIDTH = 1660;
+	private final int BOARD_HEIGHT = 840;
     private final int MISSILE_SPEED =5;
 	private String direction;
 	private boolean visible = true;
@@ -22,6 +23,7 @@ public class Projectile implements Serializable
 		this.direction = direction;
 	}
 
+	//Adjust direction of projectile based on player direction
 	 public void move()
 	 {
 		 if(direction.equals("E"))
@@ -53,12 +55,18 @@ public class Projectile implements Serializable
 			 x -= MISSILE_SPEED;
 		}
 			 
-        if (x > BOARD_WIDTH + 3 || x < -3 || y < -3 || y > BOARD_HEIGHT + 3) 
+		//Set bounds for projectile
+        if (x > BOARD_WIDTH + 16 || x < -16 || y < -16 || y > BOARD_HEIGHT + 20) 
         {
            visible = false;
         }
 	 }
 	 
+	 	//Getters and Setters
+	 	public Rectangle getBounds()
+		{
+			return new Rectangle(x, y, 20, 20);
+		}
 		public int getX()
 		{
 			return this.x;
@@ -67,7 +75,6 @@ public class Projectile implements Serializable
 		{
 			return this.y;
 		}
-		
 		public boolean isVisible()
 		{
 			return visible;

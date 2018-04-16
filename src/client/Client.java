@@ -2,11 +2,9 @@ package client;
 
 import java.awt.EventQueue;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -41,23 +39,30 @@ public class Client extends Thread
 	public ObjectOutputStream oos = null;
 	private ObjectInputStream ois = null;
 	public Map<Integer, Player> playerMap;
-	public Image background;
+	public BufferedImage background;
 	public BufferedImage playerSheet, projectileSheet;
+	public Image dead;
+	
 	public Client()
 	{
+		//Initialize Hashmap
 		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
-		boolean connected = false;;
-		background = loadImage("background");
+		boolean connected = false;
 		
+		//Load images for drawing
+		dead = loadImage("bones");
 		try 
 		{
 			projectileSheet = ImageIO.read(getClass().getResource("/resources/projectile.png"));
 			playerSheet = ImageIO.read(getClass().getResource("/resources/player.png"));
+			background = ImageIO.read(getClass().getResource("/resources/background.png"));	
 		} 
-		catch (IOException e3) {
+		catch (IOException e3) 
+		{
 			e3.printStackTrace();
 		}
 		
+		//Create UDP Socket
 		try 
 		{
 			socket = new MulticastSocket();
@@ -67,6 +72,7 @@ public class Client extends Thread
 			e2.printStackTrace();
 		}
 		
+		//Initialize GUI
 		EventQueue.invokeLater(() -> 
 		{
 			ex = new MainFrame(this.socket);
@@ -74,6 +80,7 @@ public class Client extends Thread
 	        ex.setVisible(true);    
 	    });
 		
+		//Connect to server and get Client ID and get added to server player Map
 		while(!connected)
 		{
 			try 
@@ -88,7 +95,7 @@ public class Client extends Thread
 			        ex.setLocationRelativeTo(null);
 			        ex.setResizable(false);
 			        ex.pack();
-			        ex.setSize(1280, 720);
+			        ex.setSize(1680, 900);
 			        ex.setFocusable(true);;
 			        ex.getContentPane().revalidate();
 			        ex.repaint();
@@ -115,6 +122,7 @@ public class Client extends Thread
 		byte[] data = new byte[4024];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
 		
+		//Obtain Client ID
 		while(this.clientID == -1) 
 		{
 			GameMessage assignID = new GameMessage(-1, "assignid", "" + this.getId());	
@@ -129,9 +137,10 @@ public class Client extends Thread
 		        gm = deSearializeGM(data, bais, ois);	 
 
 		        if(gm.getProtocol().equalsIgnoreCase("assignedID") 
-		        	&& gm.getMessage().trim().equalsIgnoreCase( String.valueOf(socket.getLocalPort())))
+		        	&& gm.getMessage().trim().equalsIgnoreCase(String.valueOf(socket.getLocalPort())))
 		        {
-		        	System.out.println("Client ID Assigned: " + gm.getID() + " Starting Coordinate ("+gm.player.getX()
+		        	System.out.println("Client ID Assigned: " + gm.getID() 
+		        	+ " Starting Coordinate (" + gm.player.getX()
 		        	+ "," +gm.player.getY() +")");
 		        	
 		        	this.clientID = gm.getID();		 
@@ -148,8 +157,8 @@ public class Client extends Thread
 		}
 		   this.start();
 		   
-
 		   /* Needs to be implemented to ensure server that client is still joined.
+		    *Also need to implement a check for last player who stands wins.
 		   while(true)
 		   {
 			   if(running)
@@ -173,20 +182,17 @@ public class Client extends Thread
 			}	
 			
 			*/
-
 	}
-	// Need to work on fiiguring out why the message is either not sent or is not being received correctly!@
-	
+
+	//Send update of player Coordinates and projectile fire
 	public void sendPlayerUpdate(String type)
 	{
 		byte[] data = new byte[4024];
 		
 		data = new byte[4024];
-		//System.out.println("Entered Send Player Update: " + type);
-		
+
 		if(type.equalsIgnoreCase("movement"))
 		{
-			//System.out.println("entered movement message");
 			GameMessage gm = new GameMessage(clientID, "movement", "");
 			gm.player = board.player;
 			data = serializeGM(baos, gm, oos);
@@ -195,31 +201,25 @@ public class Client extends Thread
 		}
 		else if(type.equalsIgnoreCase("projectile"))
 		{
-			//System.out.println("entered movement message");
 			GameMessage gm = new GameMessage(clientID, "projectile", "");
 			gm.player = board.player;
 			data = serializeGM(baos, gm, oos);
 			sendData(data);
-		}
-			
-		
-		
-		
-		
+		}	
 	}
 	
+	//Function for loading Image
 	public Image loadImage(String name)
 	{
-		System.out.println("Image loaded");
 		ImageIcon ic = new ImageIcon("src/resources/" + name + ".png");
 		Image image = ic.getImage();
 		return image;
 	}
 	
-	
-	@SuppressWarnings("resource")
+	//Client Thread
 	public synchronized  void run()
 	{
+		//Join Multi-Cast Group on Port 4000 at BroadCast IP 224.0.0.1
 		try 
 		{
 			ms = new MulticastSocket(4000);
@@ -234,6 +234,7 @@ public class Client extends Thread
 		byte[] data;
 		DatagramPacket packet;
 
+		//Retrieve Multi-Cast Packets for server updates
 		while(true)
 		{
 			 data = new byte[4024];
@@ -250,12 +251,13 @@ public class Client extends Thread
 			if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
 			{
 				playerMap = gm.playerMap;
+				board.player.health = playerMap.get(clientID).health;
 				board.repaint();	
 			}
 		}
 	}
 	
-
+	//DeSearialize Game Messsages
 	public GameMessage deSearializeGM(byte[] data, ByteArrayInputStream bais, 
 				  ObjectInputStream ois )
 	{
@@ -273,6 +275,7 @@ public class Client extends Thread
 		return gm1;
 	}
 
+	//Searialize Game Messages
 	public byte[] serializeGM(ByteArrayOutputStream baos, GameMessage gm2, 
 				 ObjectOutputStream oos)
 	{
@@ -292,6 +295,7 @@ public class Client extends Thread
 		return data;
 	}
 
+	//Send Data packet through UDP Socket "socket"
 	public void sendData(byte[] data)
 	{
 		DatagramPacket packet = new DatagramPacket(data, data.length, socket.getInetAddress(), socket.getPort());
@@ -303,10 +307,13 @@ public class Client extends Thread
 			e.printStackTrace();
 		}
 	}
+	
+	//Return Assigned Client ID
 	public int getID()
 	{
 		return this.clientID;
 	}
+	
 	@SuppressWarnings("unused")
 	public static void main(String [] args) throws InvocationTargetException, InterruptedException
 	{

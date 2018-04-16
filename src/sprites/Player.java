@@ -1,91 +1,97 @@
 package sprites;
 
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Map;
 
 import client.Client;
 
 public class Player implements Serializable
 {
 	private static final long serialVersionUID = 1L;
-	private String playerSprite = "player";
 	private int mx;
 	private int my;
 	private int x;
 	private int y;
 	private int clientID;
-	public int port;
+	public int health = 10;
+	public int kills = 0;
+	public int shots = 0;
+	public int hits = 0;
+	public int deaths = 0;
+	public int wins = 0;
 	private static Client c;
 	public String direction = "E";
+	public int lastW = 45, lastH = 48;
 	public ArrayList<Projectile> missiles = new ArrayList<Projectile>();
 	public int playerColorY = 0, playerColorX = 0;
+
+	public Player() {}
+	
 	public Player(Client c)
 	{
 		Player.c = c;
-		this.port = c.socket.getPort();
 	}
 	
-	 public Player() {
-		// TODO Auto-generated constructor stub
-	}
-
+	//Need constructor later for adjusting kills/shots/hits/deaths
+	
+	//Signal Server that a projectile was fired from client
 	public void fire() 
-	 {
-		 
-
-	      // missiles.add(new Projectile(x, y,clientID, direction));
-		// System.out.println("Sent Projectile");
-	       c.sendPlayerUpdate("projectile");
-
-	  }
+	{
+		if(health > 0)
+		{
+			this.shots += 1;
+			c.sendPlayerUpdate("projectile");
+		}
+	}
 	 
+	//Return player projectiles
 	public ArrayList<Projectile> getMissiles() 
 	{
 		return missiles;
 	}
 	
+	//return player ID associated with Client ID
 	public int getID()
 	{
 		return this.clientID;
 	}
+	//Set player ID as client ID
 	public void setClientID(int ID)
 	{
 		this.clientID = ID;
 	}
-	
-	public String getSprite()
-	{
-		return playerSprite;
-	}
-	
+
+	//Adjusts players coordinates based on key input
 	public void move(Client c)
 	{
-		if(x < 1280 && x > 0)
+		//Bounds for border of screen
+		if(x < 1644 && x > 0)
 		{
 			this.x = this.x + mx;
 		}		
 		else
 		{
-			if(x >= 1280)
-				x -= 1;
+			if(x >= 1644)
+				x -= 5;
 			if(x <= 0 )
-				x += 1;
+				x += Math.abs(x) + 1 ;
 		}
-		if(y > 0 && y < 720 )
+		if(y > 0 && y < 840)
 		{
 			this.y = this.y + my;
 		}
 		else
 		{
-			if(y >= 720)
-				y -= 1;
-			if(y <= 0 )
-				y += 1;
+			if(y >= 840)
+				y -= 5;
+			if(y <= 0)
+				y += 5;
 		}
 
-		
-		
+		//Determines direction of sprite
 		//X:LEFT, Y:UP = Diagonal top left
 		 if(mx < 0 && my < 0)
 		 {
@@ -116,15 +122,57 @@ public class Player implements Serializable
 			 direction = "N";
 		
 		
-		
-		
+		 //Checks for collisions between player sprites
+		 for(Map.Entry<Integer,Player> entry : c.playerMap.entrySet())
+			{
+				if(this.clientID != entry.getKey() && (entry.getValue().health > 0) &&this.getBounds().intersects(entry.getValue().getBounds()))
+				{
+					if(direction.equals("N"))
+					{
+						this.y += 5;
+					}
+					if(direction.equals("NE"))
+					{
+						this.x += -5;
+						this.y += 5;
+					}
+					if(direction.equals("NW"))
+					{
+						this.x += 5;
+						this.y += 5;	
+					}
+					if(direction.equals("E"))
+					{
+						this.x += -5;	
+					}
+					if(direction.equals("SE"))
+					{
+						this.x += -5;
+						this.y += -5;
+					}
+					if(direction.equals("SW"))
+					{
+						this.x += 5;
+						this.y += -5;	
+					}
+					if(direction.equals("S"))
+					{
+						this.y += -5;
+					}
+					if(direction.equals("W"))
+					{
+						this.x += 5;	
+					}
+				}
+			}
+		//If movement then notify server of new player coordinates
 		if(mx != 0 || my != 0)
 		{
-		//	System.out.println("Sent movement");
 			c.sendPlayerUpdate("movement");
 		}
 	}
 	
+	//Getters and setters for X/Y coordinates
 	public int getX()
 	{
 		return this.x;
@@ -143,14 +191,22 @@ public class Player implements Serializable
 	{
 		this.y = y;
 	}
-
-	public void keyPressed(KeyEvent e)
+	
+	//returns boundaries of objects moving
+	public Rectangle getBounds()
 	{
+		return new Rectangle(x, y, lastW - 13, lastH - 13);
+	}
+	
+	//For capturing key input and adjusting direction progression
+	//of sprite
+	public void keyPressed(KeyEvent e)
+	{	
 		int key = e.getKeyCode();
 
 		if (key == KeyEvent.VK_SPACE) 
 		{
-			if(missiles.size() < 5)
+			if(c.playerMap.get(clientID).missiles.size() < 5)
 			{
 	            fire();
 			}   
@@ -171,6 +227,7 @@ public class Player implements Serializable
 		{
 			this.my = 3;
 		}		
+			c.sendPlayerUpdate("movement");
 	}
 	
 	public void keyReleased(KeyEvent e)

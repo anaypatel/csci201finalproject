@@ -1,5 +1,6 @@
 package server;
 
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,7 +15,6 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import serializedMessages.GameMessage;
 import sprites.Player;
 import sprites.Projectile;
@@ -25,12 +25,14 @@ public class GameServer  extends Thread
 	private Map<Integer, Player> playerMap;
 	private MulticastSocket socket;
 	private GameMessage gm = new GameMessage(-1, "" , "");
-	private boolean gameRunning, ready;
+	private boolean gameRunning;
 	public GameServer(int port)
 	{
+		//Set Game Running condition to false & initialize PlayerMap
 		gameRunning = false;
 		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
 
+		//Try Binding to server
 		try 
 		{
 			System.out.println("Binding to port: " + port);
@@ -41,18 +43,21 @@ public class GameServer  extends Thread
 			System.out.println("Error From GameRoom Constructor: " + ioe);
 		
 		}
-
+		
+		//Initialize Game Loop
 		initGameLoop();		
 	}
 
 	private void initGameLoop()
 	{
+		//Data members for sending/rec packets
 		ByteArrayOutputStream baos = null;
 		ObjectOutputStream oos = null;
 		DatagramPacket packet;
 		InetAddress address = null;
 		byte[] data;
 		
+		//Set Multicast Broadcast IP
 		try 
 		{
 			address = InetAddress.getByName("224.0.0.1");
@@ -62,51 +67,100 @@ public class GameServer  extends Thread
 			e1.printStackTrace();
 		}
 		
+		//Main Thread for Collision of Projectiles and Players
+		//Main Thread is also for sending periodic updates of client updates to 
+		//all clients
 		while(true)
 		{	
+			//If players are added start analysis of game
+			//Will update to players >= 4 or 8
 			if(playerMap.size() > 0)
 			{
+				//Create Collision map of Client ID Keys and Player Sprite Bounds
+				Map<Integer,Rectangle> collisionChecker = new HashMap<Integer,Rectangle>();
 				
-				for(int i = 0; i < playerMap.size(); ++i)
+				//Add player bounds to collision checker data structure
+				for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
 				{
-					if(playerMap.get(i).missiles.size() > 0)
+					if(entry.getValue().health > 0)
 					{
-						for(int j = 0; j < playerMap.get(i).missiles.size(); ++j)
+						collisionChecker.put(entry.getKey(),entry.getValue().getBounds());
+					}
+				}
+				
+				//If last man standing then he wins!
+				/*
+					if(collisionChecker.size() == 1)
+					{
+						//Get collision checker only guy left and give him win point
+					}
+				*/
+				//Iterate through Player Map and move/remove missiles
+				for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+				{
+					if(entry.getValue().missiles.size() > 0)
+					{
+						for(int j = 0; j < entry.getValue().missiles.size(); ++j)
 						{		
-							
-				            if (playerMap.get(i).missiles.get(j).isVisible()) 
+							//Check each projectile and player bounds for intersections. If intersection found
+							//Remove missile and deduct health
+							for(Map.Entry<Integer, Rectangle> collisionEntry : collisionChecker.entrySet())
+							{
+								//If collision occured update stats
+								if(collisionEntry.getValue().intersects(entry.getValue().missiles.get(j).getBounds())
+										&& (collisionEntry.getKey() != entry.getKey()))
+								{
+									//If health > 0
+									if(playerMap.get(collisionEntry.getKey()).health > 0)
+									{
+										entry.getValue().missiles.get(j).setVisible(false);
+										entry.getValue().hits +=1;
+										playerMap.get(collisionEntry.getKey()).health -= 1;
+										
+										if(playerMap.get(collisionEntry.getKey()).health == 0)
+										{
+											entry.getValue().kills += 1;
+										}										
+										gameRunning = true;
+									}
+								}
+							}
+							//Remove missiles if not visible or move them if they are
+				            if (entry.getValue().missiles.get(j).isVisible()) 
 				            {
-				            	playerMap.get(i).missiles.get(j).move();
+				            	entry.getValue().missiles.get(j).move();
 				            	gameRunning = true;
 				            }
 				            else
 				            {
-				            	playerMap.get(i).missiles.remove(j);
+				            	entry.getValue().missiles.remove(j);
 				            }
 				        }
 					}
 				}
 			}
-				if(gameRunning)
+			//If a condition changed on a client send update to all clients
+			if(gameRunning)
+			{
+				gameRunning = false;
+				gm = new GameMessage(-1, "movementupdate", "GameLoop Message");
+				gm.playerMap = playerMap;
+				data = serializeGM(baos, gm, oos);
+				
+				try 
 				{
-					gameRunning = false;
-					gm = new GameMessage(-1, "movementupdate", "GameLoop Message");
-					gm.playerMap = playerMap;
-					data = serializeGM(baos, gm, oos);
-					
-					try 
-					{
-						packet = new DatagramPacket(data, data.length, address, 4000);
-						socket.send(packet);
-					} 
-					catch (UnknownHostException e) 
-					{
-						e.printStackTrace();
-					} catch (IOException e) 
-					{
-						e.printStackTrace();
-					}
-				}	
+					packet = new DatagramPacket(data, data.length, address, 4000);
+					socket.send(packet);
+				} 
+				catch (UnknownHostException e) 
+				{
+					e.printStackTrace();
+				} catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+			}	
+			//Make thread sleep every 15 ms 
 			try
 			{
 				Thread.sleep(15,0);
@@ -118,9 +172,9 @@ public class GameServer  extends Thread
 		}	
 	}
 	
-
 	public void run()
 	{
+		//Packet Data Members
 		ByteArrayInputStream bais = null;
 		ByteArrayOutputStream baos = null;
 		ObjectInputStream ois = null;
@@ -128,6 +182,9 @@ public class GameServer  extends Thread
 		DatagramPacket packet;
 		byte[] data;
 
+		//Server Incoming Client Conditions loop
+		//Receives Packets about player movement, projectiles, and
+		//requests for client ID
 		while(true)
 		{
 			data = new byte[4024];
@@ -155,27 +212,29 @@ public class GameServer  extends Thread
 				Player temp = playerMap.get(gm.player.getID());
 				temp.setX(gm.player.getX());
 				temp.setY(gm.player.getY());
-				temp.missiles.add(new Projectile(temp.getX(), temp.getY(),temp.getID(), gm.player.direction));
+				temp.missiles.add(new Projectile(temp.getX(), temp.getY(),
+							      temp.getID(), gm.player.direction));
 				gameRunning = true;
 				
 			}
 			else if(gm.getProtocol().equals("assignid"))
 			{	
 				System.out.println("Assigned Client ID : " 
-						           + clientIDCounter + " For port : " + packet.getPort());
-				GameMessage assignID = new GameMessage(clientIDCounter, "assignedID", "" 
-						               + packet.getPort());	
+						           + clientIDCounter 
+						           + " For port : " 
+						           + packet.getPort());
+				GameMessage assignID = new GameMessage(clientIDCounter, 
+								       "assignedID", "" + packet.getPort());	
 				
-				//Assign colors. Needs work
-				if(clientIDCounter + 1 % 8 >=0 && clientIDCounter + 1 % 8 <= 4)
+				//Algorithm for choosing player colors off of sprite
+				if(clientIDCounter  % 8 >=0 && clientIDCounter  % 8 < 4)
 				{
-					gm.player.playerColorX = (clientIDCounter + 1 % 8) * 96;  
+					gm.player.playerColorX = (clientIDCounter  % 8) * 144;  
 					gm.player.playerColorY = 0;
-				
 				}
 				else
 				{
-					gm.player.playerColorX = (clientIDCounter + 1 % 4) * 96; 
+					gm.player.playerColorX = (clientIDCounter  % 4) * 145; 
 					gm.player.playerColorY = 192;
 				}
 				

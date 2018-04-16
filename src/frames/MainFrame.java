@@ -5,7 +5,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
@@ -46,7 +45,7 @@ public class MainFrame extends JFrame {
 		///Set close for X button top right corner
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//Set x,y,width,height
-		setBounds(1280, 720, 1280, 720);
+		setBounds(1680, 900, 1680, 900);
 		//Create new JPanel for connection screen
 		contentPane = new JPanel();
 		//Set border
@@ -115,7 +114,6 @@ public class MainFrame extends JFrame {
 	
 	public void initializeGameBoardPanel()
 	{
-		
 	}
 	
 	private class SwingAction extends AbstractAction 
@@ -133,11 +131,7 @@ public class MainFrame extends JFrame {
 				System.out.println("Trying to connect from MainFrame Action method 'Join'");
 				s.connect(new InetSocketAddress(txtIpAddress.getText(), 
 												Integer.parseInt(txtPort.getText())));	
-				
-				//s = new MulticastSocket(Integer.parseInt(txtPort.getText()));
-				
 				System.out.println("Connection complete from MainFrame Action method 'Join'");
-
 			}
 			catch(SocketException se)
 			{
@@ -147,13 +141,7 @@ public class MainFrame extends JFrame {
 			{
 				System.out.println("nfe: " + nfe.getMessage() 
 									+ "\nPort was not a number.");
-			}
-			catch(IOException ioe)
-			{
-				System.out.println("Reading Input Error from Client Main: " + ioe);
-			}	
-			
+			}		
 		}
 	}
-
 }
