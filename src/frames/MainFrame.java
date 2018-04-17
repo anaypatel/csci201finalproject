@@ -19,13 +19,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JPanel {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
 	private JLabel ipLabel, portLabel;
 	private JTextField txtIpAddress;
 	private JTextField txtPort;
@@ -47,41 +46,41 @@ public class MainFrame extends JFrame {
 	{
 
 		///Set close for X button top right corner
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//Set x,y,width,height
 		setBounds(800, 600, 800, 600);
 		//Create new JPanel for connection screen
-		contentPane = new JPanel();
-		contentPane.setBackground(Color.BLACK);
+//		contentPane = new JPanel();
+		this.setBackground(Color.BLACK);
 		//Set border
 		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//set content pane of this.Frame
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
+//		setContentPane(contentPane);
+		this.setLayout(null);
 		
 		ipLabel = new JLabel();
 		ipLabel.setBounds(275, 219, 66, 16);
 		ipLabel.setForeground(Color.WHITE);
 		ipLabel.setText("IP Address");
-		contentPane.add(ipLabel);
+		this.add(ipLabel);
 		
 		
 		txtIpAddress = new JTextField();
 		txtIpAddress.setBounds(352, 214, 130, 26);
 		txtIpAddress.setText("");
-		contentPane.add(txtIpAddress);
+		this.add(txtIpAddress);
 		txtIpAddress.setColumns(10);
 		
 		portLabel = new JLabel();
 		portLabel.setBounds(316, 254, 25, 16);
 		portLabel.setForeground(Color.WHITE);
 		portLabel.setText("Port");
-		contentPane.add(portLabel);
+		this.add(portLabel);
 		
 		txtPort = new JTextField();
 		txtPort.setBounds(352, 249, 130, 26);
 		txtPort.setText("");
-		contentPane.add(txtPort);
+		this.add(txtPort);
 		txtPort.setColumns(10);
 		
 		btnJoin = new JButton("Join");
@@ -92,18 +91,18 @@ public class MainFrame extends JFrame {
 			}
 		});
 		btnJoin.setAction(action);
-		contentPane.add(btnJoin);
+		this.add(btnJoin);
 		
 		JLabel lblGameName = new JLabel("Game Name");
 		lblGameName.setForeground(Color.WHITE);
 		lblGameName.setFont(new Font("Lucida Grande", Font.PLAIN, 42));
 		lblGameName.setBounds(275, 73, 251, 82);
-		contentPane.add(lblGameName);
+		this.add(lblGameName);
 		
 		errorMsg = new JLabel("");
 		errorMsg.setForeground(Color.RED);
 		errorMsg.setBounds(275, 279, 373, 30);
-		contentPane.add(errorMsg);
+		this.add(errorMsg);
 	}
 
 	

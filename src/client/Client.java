@@ -19,8 +19,10 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 
 import frames.Board;
+import frames.Leaderboard;
 import frames.Login;
 import frames.MainFrame;
 import serializedMessages.GameMessage;
@@ -31,6 +33,7 @@ public class Client extends Thread
 	public int clientID = -1;
 	private MainFrame ex;
 	private Login loginFrame;
+	private JFrame appWindow;
 	public MulticastSocket socket;
 	private Board board;
 	public GameMessage gm = null;
@@ -45,6 +48,7 @@ public class Client extends Thread
 	public BufferedImage playerSheet, projectileSheet;
 	public Image dead;
 	public boolean loggedIn = false; 	
+	public boolean leaderboard = false;
 	
 	public Client()
 	{
@@ -78,37 +82,40 @@ public class Client extends Thread
 			e2.printStackTrace();
 		}
 		
-		
-		System.out.println("Before Initialize Login Frame");
-		
+				
 		//Initialize GUI
 		EventQueue.invokeLater(() -> 
 		{
-			System.out.println("Initialize Login Frame");
-			//ex = new MainFrame(this.socket);
+			appWindow = new JFrame();
+			appWindow.setVisible(true);
+			appWindow.setSize(800, 600);
+			
 			loginFrame = new Login(this);
-			loginFrame.setLocationRelativeTo(null);
 			loginFrame.setVisible(true);
-			//ex.setLocationRelativeTo(null);
-	        //ex.setVisible(true);    
-			System.out.println("After Initialized Login Frame");
-	    
+			
+			appWindow.setContentPane(loginFrame);
+			appWindow.setLocationRelativeTo(null);
 		});
 		
+				
+//		Poll Login Screen for Success
+		while(!loggedIn){
+			try {
+				Thread.sleep(0);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
-		System.out.println("Not logged in!");
+		loginFrame.setVisible(false);
+		appWindow.getContentPane().removeAll();
 		
-		//Poll Login Screen for Success
-		while(!loggedIn){}
-		
-		System.out.println("Logged in!");
-		//Initialize Conection Frame
-		loginFrame.getContentPane().removeAll();
+		//Initialize Conection Frame	
 		ex = new MainFrame(this.socket);
-		loginFrame.setContentPane(ex);
-		loginFrame.setLocationRelativeTo(null);
-		loginFrame.setResizable(false);
-		
+		appWindow.setContentPane(ex);
+		appWindow.revalidate();
+		ex.setVisible(true);
 		
 		//Connect to server and get Client ID and get added to server player Map
 		while(!connected)
@@ -119,20 +126,18 @@ public class Client extends Thread
 				{
 					System.out.println("Connected! Socket Address: " + socket.getInetAddress());
 					connected = true;
-			        ex.getContentPane().removeAll();
+			        appWindow.getContentPane().removeAll();
 			        board = new Board(this.socket, oos, this);
-			        ex.setContentPane(board);
-			        ex.setLocationRelativeTo(null);
-			        ex.setResizable(false);
-			        ex.pack();
-			        ex.setSize(1280, 720);
-			        ex.setFocusable(true);;
-			        ex.getContentPane().revalidate();
-			        ex.repaint();
-			        ex.requestFocusInWindow();
-			        ex.addKeyListener(board.getKeyListeners()[0]);
-			        ex.setName("Game Board");
-			     
+			        appWindow.setContentPane(board);
+			        appWindow.setResizable(false);
+			        appWindow.pack();
+			        appWindow.setSize(1280, 720);
+			        appWindow.setFocusable(true);;
+			        appWindow.getContentPane().revalidate();
+			        appWindow.repaint();
+			        appWindow.requestFocusInWindow();
+			        appWindow.addKeyListener(board.getKeyListeners()[0]);
+			        appWindow.setName("Game Board");
 				}
 			} 
 			catch(SocketException se)
@@ -267,7 +272,7 @@ public class Client extends Thread
 		DatagramPacket packet;
 
 		//Retrieve Multi-Cast Packets for server updates
-		while(true)
+		while(!leaderboard)
 		{
 			 data = new byte[4024];
 			 packet = new DatagramPacket(data, data.length);
@@ -284,9 +289,19 @@ public class Client extends Thread
 			{
 				playerMap = gm.playerMap;
 				board.player.health = playerMap.get(clientID).health;
+				board.player.kills = playerMap.get(clientID).kills;
+				board.player.deaths = playerMap.get(clientID).deaths;
 				board.repaint();	
 			}
 		}
+
+		loginFrame.updateDatabase(board.player);
+		Leaderboard leaderboardFrame = new Leaderboard(this);
+		board.setVisible(false);
+		appWindow.getContentPane().removeAll();
+		appWindow.setContentPane(leaderboardFrame);
+		leaderboardFrame.setVisible(true);
+		
 	}
 	
 	//DeSearialize Game Messsages

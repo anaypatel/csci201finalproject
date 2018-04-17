@@ -43,9 +43,9 @@ import javax.swing.JTable;
 import javax.swing.border.BevelBorder;
 import java.awt.ScrollPane;
 
-public class Leaderboard extends JFrame {
+public class Leaderboard extends JPanel {
 
-	private JPanel contentPane;
+//	private JPanel contentPane;
 	private Client c;
 
 	private final Action signoutAction = new SignOutAction();
@@ -58,12 +58,12 @@ public class Leaderboard extends JFrame {
 	}
 	
 	public void initLogin() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(800, 600, 800, 600);
-		contentPane = new JPanel();
-		setContentPane(contentPane);
-		contentPane.setBackground(Color.BLACK);
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+//		contentPane = new JPanel();
+//		setContentPane(contentPane);
+		this.setBackground(Color.BLACK);
+		this.setBorder(new EmptyBorder(5, 5, 5, 5));
 		
 		JButton btnJoin = new JButton("Join");
 		btnJoin.setBounds(630, 455, 143, 38);
@@ -71,15 +71,15 @@ public class Leaderboard extends JFrame {
 			public void actionPerformed(ActionEvent e) {	
 			}
 		});
-		contentPane.setLayout(null);
+		this.setLayout(null);
 		btnJoin.setAction(joinAction);
-		contentPane.add(btnJoin);
+		this.add(btnJoin);
 		
 		JLabel lblGameName = new JLabel("Game Name Leaderboard");
 		lblGameName.setBounds(35, 6, 521, 82);
 		lblGameName.setForeground(Color.WHITE);
 		lblGameName.setFont(new Font("Lucida Grande", Font.PLAIN, 42));
-		contentPane.add(lblGameName);
+		this.add(lblGameName);
 		
 		JButton btnSignOut = new JButton("Sign Out");
 		btnSignOut.setBounds(630, 505, 143, 38);
@@ -88,7 +88,7 @@ public class Leaderboard extends JFrame {
 			}
 		});
 		btnSignOut.setAction(signoutAction);
-		contentPane.add(btnSignOut);
+		this.add(btnSignOut);
 		
 		Object[] columns = new String[] {"Username", "Kills", "Deaths"};
 		Object[][] data = new Object[30][3];
@@ -145,7 +145,7 @@ public class Leaderboard extends JFrame {
 		ScrollPane scrollPane = new ScrollPane();
 		scrollPane.setBounds(35, 97, 521, 463);
 		
-		contentPane.add(scrollPane);
+		this.add(scrollPane);
 		
 		leaderboard = new JTable(data, columns);
 		leaderboard.setShowVerticalLines(false);

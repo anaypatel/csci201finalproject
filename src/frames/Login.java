@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import client.Client;
+import sprites.Player;
 
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -38,9 +39,8 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
-public class Login extends JFrame {
+public class Login extends JPanel {
 
-	private JPanel contentPane;
 	private JTextField usernameField;
 	private JPasswordField passwordField;
 	private JLabel errorMsg;
@@ -54,13 +54,109 @@ public class Login extends JFrame {
 		initLogin();
 	}
 	
+	public void updateDatabase(Player p) {
+		String username = getUsername();
+		
+		int kills = p.kills;
+		int deaths = p.deaths;
+		int queryKills = kills;
+		int queryDeaths = deaths;
+		
+		Connection conn = null;
+		Statement st = null;
+		java.sql.PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/GameInfo?user=root&password=root&useSSL=false");
+			ps = conn.prepareStatement("SELECT * FROM Users "
+					+ "WHERE username=?;");
+			ps.setString(1, username);
+			
+			rs = ps.executeQuery();
+			rs.next();
+			queryKills = rs.getInt("kills");
+			queryDeaths = rs.getInt("deaths");
+			
+		} catch (SQLException sqle) {
+			System.out.println("sqle in UD1: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe in UD1: " + cnfe.getMessage());
+		} finally {
+			try {
+				if(rs != null) {
+					rs.close();
+				}
+				if(st != null) {
+					st.close();
+				}
+				if(ps != null) {
+					ps.close();
+				}
+				if(conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing streams in UD1: " + sqle.getMessage());
+			}
+		}
+		
+		conn = null;
+		st = null;
+		ps = null;
+		rs = null;
+		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/GameInfo?user=root&password=root&useSSL=false");
+			
+			if(kills != queryKills || deaths != queryDeaths) {
+				ps = conn.prepareStatement("UPDATE Users "
+						+ "SET kills=?, deaths=? "
+						+ "WHERE username=?;");
+				ps.setInt(1, kills);
+				ps.setInt(2, deaths);
+				ps.setString(3, username);
+				ps.executeUpdate();
+			}
+			
+		} catch (SQLException sqle) {
+			System.out.println("sqle in UD2: " + sqle.getMessage());
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("cnfe in UD2: " + cnfe.getMessage());
+		} finally {
+			try {
+				if(rs != null) {
+					rs.close();
+				}
+				if(st != null) {
+					st.close();
+				}
+				if(ps != null) {
+					ps.close();
+				}
+				if(conn != null) {
+					conn.close();
+				}
+			} catch(SQLException sqle) {
+				System.out.println("sqle closing streams in UD2: " + sqle.getMessage());
+			}
+		}
+		
+	}
+	
+	public String getUsername() {
+		return usernameField.getText();
+	}
+	
 	public void initLogin() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(800, 600, 800, 600);
-		contentPane = new JPanel();
-		setContentPane(contentPane);
-		contentPane.setBackground(Color.BLACK);
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+//		this = new JPanel();
+//		setthis(this);
+		this.setBackground(Color.BLACK);
+		this.setBorder(new EmptyBorder(5, 5, 5, 5));
 		
 		JButton Login = new JButton("Login");
 		Login.setBounds(352, 323, 143, 38);
@@ -68,39 +164,39 @@ public class Login extends JFrame {
 			public void actionPerformed(ActionEvent e) {	
 			}
 		});
-		contentPane.setLayout(null);
+		this.setLayout(null);
 		
 		JLabel lblGameName = new JLabel("Game Name");
 		lblGameName.setBounds(275, 73, 251, 82);
 		lblGameName.setForeground(Color.WHITE);
 		lblGameName.setFont(new Font("Lucida Grande", Font.PLAIN, 42));
-		contentPane.add(lblGameName);
+		this.add(lblGameName);
 		
 		JLabel lblUsername = new JLabel("Username");
 		lblUsername.setBounds(275, 219, 65, 16);
 		lblUsername.setForeground(Color.WHITE);
-		contentPane.add(lblUsername);
+		this.add(lblUsername);
 		
 		usernameField = new JTextField();
 		usernameField.setBounds(352, 214, 143, 26);
-		contentPane.add(usernameField);
+		this.add(usernameField);
 		usernameField.setColumns(10);
 		
 		JLabel lblPassword = new JLabel("Password");
 		lblPassword.setBounds(275, 254, 59, 16);
 		lblPassword.setForeground(Color.WHITE);
-		contentPane.add(lblPassword);
+		this.add(lblPassword);
 		
 		errorMsg = new JLabel("");
 		errorMsg.setBounds(275, 282, 373, 30);
 		errorMsg.setForeground(Color.RED);
-		contentPane.add(errorMsg);
+		this.add(errorMsg);
 		
 		passwordField = new JPasswordField();
 		passwordField.setBounds(352, 249, 143, 26);
-		contentPane.add(passwordField);
+		this.add(passwordField);
 		Login.setAction(loginAction);
-		contentPane.add(Login);
+		this.add(Login);
 		
 		JButton SignUp = new JButton("Sign Up");
 		SignUp.setBounds(352, 373, 143, 38);
@@ -109,7 +205,7 @@ public class Login extends JFrame {
 			}
 		});
 		SignUp.setAction(signupAction);
-		contentPane.add(SignUp);
+		this.add(SignUp);
 	}
 	
 	private class LoginAction extends AbstractAction 

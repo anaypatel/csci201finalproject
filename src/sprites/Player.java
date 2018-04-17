@@ -27,12 +27,13 @@ public class Player implements Serializable
 	public int lastW = 45, lastH = 48;
 	public ArrayList<Projectile> missiles = new ArrayList<Projectile>();
 	public int playerColorY = 0, playerColorX = 0;
+	public String username;
 
 	public Player() {}
 	
-	public Player(Client c)
+	public Player(Client _c)
 	{
-		Player.c = c;
+		c = _c;
 	}
 	
 	//Need constructor later for adjusting kills/shots/hits/deaths
@@ -206,7 +207,7 @@ public class Player implements Serializable
 
 		if (key == KeyEvent.VK_SPACE) 
 		{
-			System.out.println("SPACE");
+			
 			if(c.playerMap.get(clientID).missiles.size() < 5)
 			{
 	            fire();
@@ -214,25 +215,26 @@ public class Player implements Serializable
 	    }
 		if(key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT)
 		{
-			System.out.println("LEFT");
 			this.mx = -3;
 		}
 		if(key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
 		{
-			System.out.println("RIGHT");
 			this.mx = 3;
 		}
 		if(key == KeyEvent.VK_W || key == KeyEvent.VK_UP)
 		{
-			System.out.println("UP");
 			this.my = -3;
 		}
 		if(key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN)
 		{
-			System.out.println("DOWN");
 			this.my = 3;
-		}		
-			c.sendPlayerUpdate("movement");
+		}
+		
+		if(key == KeyEvent.VK_ESCAPE) {
+			c.leaderboard = true;
+		}
+		
+		c.sendPlayerUpdate("movement");
 	}
 	
 	public void keyReleased(KeyEvent e)

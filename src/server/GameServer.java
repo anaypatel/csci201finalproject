@@ -74,7 +74,7 @@ public class GameServer  extends Thread
 		{	
 			//If players are added start analysis of game
 			//Will update to players >= 4 or 8
-			if(playerMap.size() > 0)
+			if(playerMap.size() >= 2)
 			{
 				//Create Collision map of Client ID Keys and Player Sprite Bounds
 				Map<Integer,Rectangle> collisionChecker = new HashMap<Integer,Rectangle>();
@@ -119,6 +119,7 @@ public class GameServer  extends Thread
 										
 										if(playerMap.get(collisionEntry.getKey()).health == 0)
 										{
+											playerMap.get(collisionEntry.getKey()).deaths++;
 											entry.getValue().kills += 1;
 										}										
 										gameRunning = true;
