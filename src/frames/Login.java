@@ -125,6 +125,11 @@ public class Login extends JFrame {
 		{
 			boolean success = authenticate();	
 			System.out.println("Login: " + success);
+			if(success)
+			
+			{
+				c.loggedIn = true;
+			}
 		}
 		
 		public boolean authenticate() {
@@ -216,6 +221,14 @@ public class Login extends JFrame {
 		{
 			boolean success = authenticate();
 			System.out.println("SignUp: " + success);
+			
+			if(success)
+			{
+				c.loggedIn = true;
+			}
+			
+
+		
 		}
 		
 		public boolean authenticate() 

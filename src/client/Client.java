@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import frames.Board;
+import frames.Login;
 import frames.MainFrame;
 import serializedMessages.GameMessage;
 import sprites.Player;
@@ -29,6 +30,7 @@ public class Client extends Thread
 {
 	public int clientID = -1;
 	private MainFrame ex;
+	private Login loginFrame;
 	public MulticastSocket socket;
 	private Board board;
 	public GameMessage gm = null;
@@ -42,6 +44,7 @@ public class Client extends Thread
 	public BufferedImage background;
 	public BufferedImage playerSheet, projectileSheet;
 	public Image dead;
+	public boolean loggedIn = false; 	
 	
 	public Client()
 	{
@@ -75,13 +78,37 @@ public class Client extends Thread
 			e2.printStackTrace();
 		}
 		
+		
+		System.out.println("Before Initialize Login Frame");
+		
 		//Initialize GUI
 		EventQueue.invokeLater(() -> 
 		{
-			ex = new MainFrame(this.socket);
-			 ex.setLocationRelativeTo(null);
-	        ex.setVisible(true);    
-	    });
+			System.out.println("Initialize Login Frame");
+			//ex = new MainFrame(this.socket);
+			loginFrame = new Login(this);
+			loginFrame.setLocationRelativeTo(null);
+			loginFrame.setVisible(true);
+			//ex.setLocationRelativeTo(null);
+	        //ex.setVisible(true);    
+			System.out.println("After Initialized Login Frame");
+	    
+		});
+		
+		
+		System.out.println("Not logged in!");
+		
+		//Poll Login Screen for Success
+		while(!loggedIn){}
+		
+		System.out.println("Logged in!");
+		//Initialize Conection Frame
+		loginFrame.getContentPane().removeAll();
+		ex = new MainFrame(this.socket);
+		loginFrame.setContentPane(ex);
+		loginFrame.setLocationRelativeTo(null);
+		loginFrame.setResizable(false);
+		
 		
 		//Connect to server and get Client ID and get added to server player Map
 		while(!connected)
@@ -98,7 +125,7 @@ public class Client extends Thread
 			        ex.setLocationRelativeTo(null);
 			        ex.setResizable(false);
 			        ex.pack();
-			        ex.setSize(800, 600);
+			        ex.setSize(1280, 720);
 			        ex.setFocusable(true);;
 			        ex.getContentPane().revalidate();
 			        ex.repaint();

@@ -4,5 +4,6 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Users/anaypatel/Documents/GitHub/csci201finalproject/jar files/jgoodies-forms-1.8.0-sources.jar"/>
 	<classpathentry kind="lib" path="/Users/anaypatel/Documents/GitHub/csci201finalproject/jar files/jgoodies-forms-1.8.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/dakot/Desktop/csci201-finalProject/csci201finalproject/jar files/mysql-connector-java-5.1.46.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
