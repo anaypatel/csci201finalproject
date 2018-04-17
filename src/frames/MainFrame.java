@@ -1,5 +1,7 @@
 package frames;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -33,6 +35,7 @@ public class MainFrame extends JFrame {
 	
 	MulticastSocket s;
 	private final Action action = new SwingAction();
+	private JLabel errorMsg;
 
 	public MainFrame(MulticastSocket _s)
 	{
@@ -42,73 +45,65 @@ public class MainFrame extends JFrame {
 
 	public void initilizeConnectionPanel() 
 	{
+
 		///Set close for X button top right corner
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//Set x,y,width,height
-		setBounds(1680, 900, 1680, 900);
+		setBounds(800, 600, 800, 600);
 		//Create new JPanel for connection screen
 		contentPane = new JPanel();
+		contentPane.setBackground(Color.BLACK);
 		//Set border
 		//contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		//set content pane of this.Frame
 		setContentPane(contentPane);
-		//Make gridbaglayout layot type for content pane JPanel
-		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.columnWeights = 
-					  new double[]{0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		contentPane.setLayout(gbl_contentPane);
+		contentPane.setLayout(null);
 		
 		ipLabel = new JLabel();
+		ipLabel.setBounds(275, 219, 66, 16);
+		ipLabel.setForeground(Color.WHITE);
 		ipLabel.setText("IP Address");
-		GridBagConstraints gbc_ipLabel = new GridBagConstraints();
-		gbc_ipLabel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_ipLabel.gridx = 5;
-		gbc_ipLabel.gridy = 1;
-		contentPane.add(ipLabel, gbc_ipLabel);
-				
+		contentPane.add(ipLabel);
+		
 		
 		txtIpAddress = new JTextField();
+		txtIpAddress.setBounds(352, 214, 130, 26);
 		txtIpAddress.setText("");
-		GridBagConstraints gbc_txtIpAddress = new GridBagConstraints();
-		gbc_txtIpAddress.insets = new Insets(0, 0, 5, 5);
-		gbc_txtIpAddress.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtIpAddress.gridx = 5;
-		gbc_txtIpAddress.gridy = 2;
-		contentPane.add(txtIpAddress, gbc_txtIpAddress);
+		contentPane.add(txtIpAddress);
 		txtIpAddress.setColumns(10);
 		
 		portLabel = new JLabel();
+		portLabel.setBounds(316, 254, 25, 16);
+		portLabel.setForeground(Color.WHITE);
 		portLabel.setText("Port");
-		GridBagConstraints gbc_portLabel = new GridBagConstraints();
-		gbc_portLabel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_portLabel.gridx = 5;
-		gbc_portLabel.gridy = 3;
-		contentPane.add(portLabel, gbc_portLabel);
+		contentPane.add(portLabel);
 		
 		txtPort = new JTextField();
+		txtPort.setBounds(352, 249, 130, 26);
 		txtPort.setText("");
-		GridBagConstraints gbc_txtPort = new GridBagConstraints();
-		gbc_txtPort.insets = new Insets(0, 0, 5, 5);
-		gbc_txtPort.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtPort.gridx = 5;
-		gbc_txtPort.gridy = 4;
-		contentPane.add(txtPort, gbc_txtPort);
+		contentPane.add(txtPort);
 		txtPort.setColumns(10);
 		
 		btnJoin = new JButton("Join");
+		btnJoin.setBounds(352, 325, 130, 38);
+		btnJoin.setForeground(Color.BLACK);
 		btnJoin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		btnJoin.setAction(action);
-		GridBagConstraints gbc_btnJoin = new GridBagConstraints();
-		gbc_btnJoin.insets = new Insets(0, 0, 0, 5);
-		gbc_btnJoin.gridx = 5;
-		gbc_btnJoin.gridy = 5;
-		contentPane.add(btnJoin, gbc_btnJoin);
+		contentPane.add(btnJoin);
+		
+		JLabel lblGameName = new JLabel("Game Name");
+		lblGameName.setForeground(Color.WHITE);
+		lblGameName.setFont(new Font("Lucida Grande", Font.PLAIN, 42));
+		lblGameName.setBounds(275, 73, 251, 82);
+		contentPane.add(lblGameName);
+		
+		errorMsg = new JLabel("");
+		errorMsg.setForeground(Color.RED);
+		errorMsg.setBounds(275, 279, 373, 30);
+		contentPane.add(errorMsg);
 	}
 
 	

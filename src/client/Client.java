@@ -45,6 +45,9 @@ public class Client extends Thread
 	
 	public Client()
 	{
+		// for ipv6 issues (Mac)
+		System.setProperty("java.net.preferIPv4Stack", "true");
+		
 		//Initialize Hashmap
 		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
 		boolean connected = false;
@@ -95,7 +98,7 @@ public class Client extends Thread
 			        ex.setLocationRelativeTo(null);
 			        ex.setResizable(false);
 			        ex.pack();
-			        ex.setSize(1680, 900);
+			        ex.setSize(800, 600);
 			        ex.setFocusable(true);;
 			        ex.getContentPane().revalidate();
 			        ex.repaint();
@@ -182,6 +185,7 @@ public class Client extends Thread
 			}	
 			
 			*/
+		   
 	}
 
 	//Send update of player Coordinates and projectile fire
@@ -219,6 +223,7 @@ public class Client extends Thread
 	//Client Thread
 	public synchronized  void run()
 	{
+		
 		//Join Multi-Cast Group on Port 4000 at BroadCast IP 224.0.0.1
 		try 
 		{

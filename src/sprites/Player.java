@@ -206,6 +206,7 @@ public class Player implements Serializable
 
 		if (key == KeyEvent.VK_SPACE) 
 		{
+			System.out.println("SPACE");
 			if(c.playerMap.get(clientID).missiles.size() < 5)
 			{
 	            fire();
@@ -213,18 +214,22 @@ public class Player implements Serializable
 	    }
 		if(key == KeyEvent.VK_A || key == KeyEvent.VK_LEFT)
 		{
+			System.out.println("LEFT");
 			this.mx = -3;
 		}
 		if(key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
 		{
+			System.out.println("RIGHT");
 			this.mx = 3;
 		}
 		if(key == KeyEvent.VK_W || key == KeyEvent.VK_UP)
 		{
+			System.out.println("UP");
 			this.my = -3;
 		}
 		if(key == KeyEvent.VK_S || key == KeyEvent.VK_DOWN)
 		{
+			System.out.println("DOWN");
 			this.my = 3;
 		}		
 			c.sendPlayerUpdate("movement");
