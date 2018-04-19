@@ -50,6 +50,7 @@ public class Client extends Thread
 	public boolean loggedIn = false; 	
 	public boolean leaderboard = false;
 	
+	
 	public Client()
 	{
 		// for ipv6 issues (Mac)
@@ -98,7 +99,7 @@ public class Client extends Thread
 		});
 		
 				
-//		Poll Login Screen for Success
+		//Poll Login Screen for Success
 		while(!loggedIn){
 			try {
 				Thread.sleep(0);
@@ -138,6 +139,8 @@ public class Client extends Thread
 			        appWindow.requestFocusInWindow();
 			        appWindow.addKeyListener(board.getKeyListeners()[0]);
 			        appWindow.setName("Game Board");
+			        
+			        board.player.username = loginFrame.getUsername();
 				}
 			} 
 			catch(SocketException se)
@@ -192,8 +195,8 @@ public class Client extends Thread
 		}
 		   this.start();
 		   
-		   /* Needs to be implemented to ensure server that client is still joined.
-		    *Also need to implement a check for last player who stands wins.
+		   //Needs to be implemented to ensure server that client is still joined.
+		   // Also need to implement a check for last player who stands wins.
 		   while(true)
 		   {
 			   if(running)
@@ -209,14 +212,19 @@ public class Client extends Thread
 			   
 				try 
 				{
-					Thread.sleep(0, 0);
-				} catch (InterruptedException e) 
+					//Sleep every 10 seconds?
+					Thread.sleep(10000, 0);
+					
+					System.out.println("Sent connection update");
+					
+				} 
+				catch (InterruptedException e) 
 				{
 					e.printStackTrace();
 				}
 			}	
 			
-			*/
+			
 		   
 	}
 
@@ -288,6 +296,16 @@ public class Client extends Thread
 			if(gm.getProtocol().equalsIgnoreCase("movementupdate"))
 			{
 				playerMap = gm.playerMap;
+				board.player.health = playerMap.get(clientID).health;
+				board.player.kills = playerMap.get(clientID).kills;
+				board.player.deaths = playerMap.get(clientID).deaths;
+				board.repaint();	
+			}
+			if(gm.getProtocol().equalsIgnoreCase("resetGame"))
+			{
+				playerMap = gm.playerMap;
+				board.player.setX(playerMap.get(this.clientID).getX());
+				board.player.setY(playerMap.get(this.clientID).getY());
 				board.player.health = playerMap.get(clientID).health;
 				board.player.kills = playerMap.get(clientID).kills;
 				board.player.deaths = playerMap.get(clientID).deaths;

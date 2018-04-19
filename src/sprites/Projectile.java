@@ -9,9 +9,9 @@ public class Projectile implements Serializable
 	private int x, y;
 	public int clientID;
 	
-	private final int BOARD_WIDTH = 1660;
-	private final int BOARD_HEIGHT = 840;
-    private final int MISSILE_SPEED =5;
+	private final int BOARD_WIDTH = 1255;
+	private final int BOARD_HEIGHT = 670;
+    private final int MISSILE_SPEED =8;
 	private String direction;
 	private boolean visible = true;
 	

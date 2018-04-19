@@ -68,25 +68,26 @@ public class Player implements Serializable
 	//Adjusts players coordinates based on key input
 	public void move(Client c)
 	{
+		System.out.println("x:" + x + "  y:" + y);
 		//Bounds for border of screen
-		if(x < 1644 && x > 0)
+		if(x < 1240 && x > 0)
 		{
 			this.x = this.x + mx;
 		}		
 		else
 		{
-			if(x >= 1644)
+			if(x >= 1240)
 				x -= 5;
 			if(x <= 0 )
 				x += Math.abs(x) + 1 ;
 		}
-		if(y > 0 && y < 840)
+		if(y > 0 && y < 656)
 		{
 			this.y = this.y + my;
 		}
 		else
 		{
-			if(y >= 840)
+			if(y >= 656)
 				y -= 5;
 			if(y <= 0)
 				y += 5;

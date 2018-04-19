@@ -201,7 +201,8 @@ public class Board extends JPanel implements ActionListener
 					}
 					//Draw all other players projectiles if within a certain distance
 					else if( (Math.abs(player.getX() - entry.getValue().missiles.get(j).getX()) < 130) &&
-							(Math.abs(player.getY() - entry.getValue().missiles.get(j).getY()) < 130))
+							(Math.abs(player.getY() - entry.getValue().missiles.get(j).getY()) < 130)  && 
+							(player.health > 0))
 					{
 						//Switch between two projectile Images to get a type of flickering
 						if(entry.getValue().missiles.get(j).getX()%2 == 0)
@@ -219,6 +220,24 @@ public class Board extends JPanel implements ActionListener
 								this);
 						}
 						
+					}
+					else
+					{
+						//Switch between two projectile Images to get a type of flickering
+						if(entry.getValue().missiles.get(j).getX()%2 == 0)
+						{
+							g2d.drawImage(temp2,
+								 entry.getValue().missiles.get(j).getX(),
+								 entry.getValue().missiles.get(j).getY(),20,20,
+								 this);
+						}
+								else
+						{
+							g2d.drawImage(temp3,
+								 entry.getValue().missiles.get(j).getX(),
+								 entry.getValue().missiles.get(j).getY(),23,23,
+								this);
+						}
 					}
 				}
 			}

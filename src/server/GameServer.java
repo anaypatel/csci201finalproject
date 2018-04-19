@@ -12,6 +12,7 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,18 +20,29 @@ import serializedMessages.GameMessage;
 import sprites.Player;
 import sprites.Projectile;
 
+
+import java.util.Random;
+
+
+
+
 public class GameServer  extends Thread
 {
+
 	private int clientIDCounter = 0;
 	private Map<Integer, Player> playerMap;
 	private MulticastSocket socket;
 	private GameMessage gm = new GameMessage(-1, "" , "");
 	private boolean gameRunning;
+	//Implement connection Map
+	private Map<Integer, Boolean> connectionMap;
+	
 	public GameServer(int port)
 	{
 		//Set Game Running condition to false & initialize PlayerMap
 		gameRunning = false;
 		playerMap = Collections.synchronizedMap(new HashMap<Integer, Player>());
+		connectionMap = new HashMap<Integer, Boolean>();
 
 		//Try Binding to server
 		try 
@@ -74,7 +86,7 @@ public class GameServer  extends Thread
 		{	
 			//If players are added start analysis of game
 			//Will update to players >= 4 or 8
-			if(playerMap.size() >= 2)
+			if(playerMap.size() > 0)
 			{
 				//Create Collision map of Client ID Keys and Player Sprite Bounds
 				Map<Integer,Rectangle> collisionChecker = new HashMap<Integer,Rectangle>();
@@ -89,54 +101,148 @@ public class GameServer  extends Thread
 				}
 				
 				//If last man standing then he wins!
-				/*
-					if(collisionChecker.size() == 1)
-					{
-						//Get collision checker only guy left and give him win point
-					}
-				*/
-				//Iterate through Player Map and move/remove missiles
-				for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+				
+				if(collisionChecker.size() == 1 && playerMap.size() >= 2)
 				{
-					if(entry.getValue().missiles.size() > 0)
+					//Send message that a winner has been decided
+					/*
+					 * 
+					 * 
+					 */
+					
+					
+					//Increment win for winner
+					for(Map.Entry<Integer, Rectangle> collisionEntry : collisionChecker.entrySet())
 					{
-						for(int j = 0; j < entry.getValue().missiles.size(); ++j)
-						{		
-							//Check each projectile and player bounds for intersections. If intersection found
-							//Remove missile and deduct health
-							for(Map.Entry<Integer, Rectangle> collisionEntry : collisionChecker.entrySet())
+						playerMap.get(collisionEntry.getKey()).wins++;
+						System.out.println(playerMap.get(collisionEntry.getKey()).username + " Wins!");
+					}
+					
+					//Reset Everyones Health and projectiles
+					//Rebuild random spawn locations
+					Map<Integer, Integer> coordMap = new HashMap<Integer,Integer>();
+					
+					for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+					{
+						entry.getValue().health = 10;
+						if(entry.getValue().missiles.size() > 0)
+						{
+							entry.getValue().missiles = new ArrayList<Projectile>();
+						}
+						
+						boolean pointsGood = false;
+						
+						while(!pointsGood)
+						{
+							int randX = getRandPoint(0);
+							int randY = getRandPoint(1);
+							
+							if(coordMap.size() > 0)
 							{
-								//If collision occured update stats
-								if(collisionEntry.getValue().intersects(entry.getValue().missiles.get(j).getBounds())
-										&& (collisionEntry.getKey() != entry.getKey()))
+								if(coordMap.containsKey(randX))
 								{
-									//If health > 0
-									if(playerMap.get(collisionEntry.getKey()).health > 0)
+									if(!coordMap.containsValue(randY))
 									{
-										entry.getValue().missiles.get(j).setVisible(false);
-										entry.getValue().hits +=1;
-										playerMap.get(collisionEntry.getKey()).health -= 1;
-										
-										if(playerMap.get(collisionEntry.getKey()).health == 0)
-										{
-											playerMap.get(collisionEntry.getKey()).deaths++;
-											entry.getValue().kills += 1;
-										}										
-										gameRunning = true;
+										coordMap.put(randX, randY);
+										entry.getValue().setX(randX);
+										entry.getValue().setY(randY);
+										pointsGood = true;
 									}
 								}
+								else
+								{
+									coordMap.put(randX, randY);
+									entry.getValue().setX(randX);
+									entry.getValue().setY(randY);
+									pointsGood = true;
+								}
 							}
-							//Remove missiles if not visible or move them if they are
-				            if (entry.getValue().missiles.get(j).isVisible()) 
-				            {
-				            	entry.getValue().missiles.get(j).move();
-				            	gameRunning = true;
-				            }
-				            else
-				            {
-				            	entry.getValue().missiles.remove(j);
-				            }
-				        }
+							else
+							{
+								coordMap.put(randX, randY);
+								entry.getValue().setX(randX);
+								entry.getValue().setY(randY);
+								pointsGood = true;
+							}
+							
+							
+						}
+					}
+					
+					
+					
+					//Send Message for a new game starting
+					gameRunning = false;
+					gm = new GameMessage(-1, "resetgame", "GameLoop Message");
+					gm.playerMap = playerMap;
+					data = serializeGM(baos, gm, oos);
+					
+					try 
+					{
+						packet = new DatagramPacket(data, data.length, address, 4000);
+						socket.send(packet);
+					} 
+					catch (UnknownHostException e) 
+					{
+						e.printStackTrace();
+					} catch (IOException e) 
+					{
+						e.printStackTrace();
+					}
+					
+					//Check connection Map
+					/*
+					 * Possible reinitialize the map. Then match Keys at the end and delete all the false 
+					 * from the PlayerMap
+					 */
+					
+					
+				}
+				else
+				{
+					//Iterate through Player Map and move/remove missiles
+					for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+					{
+						if(entry.getValue().missiles.size() > 0)
+						{
+							for(int j = 0; j < entry.getValue().missiles.size(); ++j)
+							{		
+								//Check each projectile and player bounds for intersections. If intersection found
+								//Remove missile and deduct health
+								for(Map.Entry<Integer, Rectangle> collisionEntry : collisionChecker.entrySet())
+								{
+									//If collision occured update stats
+									if(collisionEntry.getValue().intersects(entry.getValue().missiles.get(j).getBounds())
+											&& (collisionEntry.getKey() != entry.getKey()))
+									{
+										//If health > 0
+										if(playerMap.get(collisionEntry.getKey()).health > 0)
+										{
+											entry.getValue().missiles.get(j).setVisible(false);
+											entry.getValue().hits +=1;
+											playerMap.get(collisionEntry.getKey()).health -= 1;
+											
+											if(playerMap.get(collisionEntry.getKey()).health == 0)
+											{
+												playerMap.get(collisionEntry.getKey()).deaths++;
+												entry.getValue().kills += 1;
+											}										
+											gameRunning = true;
+										}
+									}
+								}
+								//Remove missiles if not visible or move them if they are
+					            if (entry.getValue().missiles.get(j).isVisible()) 
+					            {
+					            	entry.getValue().missiles.get(j).move();
+					            	gameRunning = true;
+					            }
+					            else
+					            {
+					            	entry.getValue().missiles.remove(j);
+					            }
+					        }
+						}
 					}
 				}
 			}
@@ -240,8 +346,45 @@ public class GameServer  extends Thread
 				}
 				
 				gm.player.setClientID(clientIDCounter);
-				gm.player.setX(600);
-				gm.player.setY(400);
+				
+				boolean goodCoordinates = false;
+				
+				Map<Integer, Integer> xyCoordinate = buildCoordinateMap();
+				
+				if(playerMap.size() > 0)
+				{
+				
+					while(!goodCoordinates)
+					{
+						int randX = getRandPoint(0);
+						int randY = getRandPoint(1);
+						
+						if(xyCoordinate.containsKey(randX))
+						{
+							if(!xyCoordinate.containsValue(randY))
+							{
+								goodCoordinates = true;
+								gm.player.setX(randX);
+								gm.player.setY(randY);
+							}
+						}
+						else
+						{
+							goodCoordinates = true;
+							gm.player.setX(randX);
+							gm.player.setY(randY);
+						}
+					}
+				}
+				else
+				{
+					gm.player.setX(600);
+					gm.player.setY(400);
+				}
+				
+				
+				
+				
 				playerMap.put(clientIDCounter, gm.player);
 				assignID.playerMap = playerMap;
 				assignID.player = gm.player;
@@ -251,6 +394,38 @@ public class GameServer  extends Thread
 				gameRunning = true;
 			}
 		}
+	}
+
+	// 0 = x , 1 = y
+	public int getRandPoint(int coordinate)
+	{
+		Random rand = new Random();		
+		int n = 0;
+		
+		if(coordinate == 0)
+		{
+			n = rand.nextInt(1240) + 1;
+		}
+		else
+		{
+			n = rand.nextInt(656) + 1;
+		}
+	
+		
+		return n;
+	}
+	
+	///Build Map of all the coordinates for all the players
+	public Map<Integer, Integer> buildCoordinateMap()
+	{
+		Map<Integer, Integer> coordMap = new HashMap<Integer, Integer>();
+		
+		for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
+		{
+			coordMap.put(entry.getValue().getX(), entry.getValue().getY());
+		}
+		 
+		return coordMap;
 	}
 	
 	public GameMessage deSearializeGM(byte[] data, ByteArrayInputStream bais, 
@@ -327,4 +502,6 @@ public class GameServer  extends Thread
 			System.out.println(ioe.getMessage());
 		}
 	}
+
+
 }
