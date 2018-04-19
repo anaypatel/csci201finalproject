@@ -93,10 +93,10 @@ public class MainFrame extends JPanel {
 		btnJoin.setAction(action);
 		this.add(btnJoin);
 		
-		JLabel lblGameName = new JLabel("Game Name");
+		JLabel lblGameName = new JLabel("Dragons & Fireballs");
 		lblGameName.setForeground(Color.WHITE);
 		lblGameName.setFont(new Font("Lucida Grande", Font.PLAIN, 42));
-		lblGameName.setBounds(275, 73, 251, 82);
+		lblGameName.setBounds(193, 88, 442, 82);
 		this.add(lblGameName);
 		
 		errorMsg = new JLabel("");

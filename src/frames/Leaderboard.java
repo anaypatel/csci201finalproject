@@ -64,31 +64,13 @@ public class Leaderboard extends JPanel {
 //		setContentPane(contentPane);
 		this.setBackground(Color.BLACK);
 		this.setBorder(new EmptyBorder(5, 5, 5, 5));
-		
-		JButton btnJoin = new JButton("Join");
-		btnJoin.setBounds(630, 455, 143, 38);
-		btnJoin.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {	
-			}
-		});
 		this.setLayout(null);
-		btnJoin.setAction(joinAction);
-		this.add(btnJoin);
 		
-		JLabel lblGameName = new JLabel("Game Name Leaderboard");
-		lblGameName.setBounds(35, 6, 521, 82);
+		JLabel lblGameName = new JLabel("Dragons & Fireballs Leaderboard");
+		lblGameName.setBounds(35, 6, 681, 82);
 		lblGameName.setForeground(Color.WHITE);
 		lblGameName.setFont(new Font("Lucida Grande", Font.PLAIN, 42));
 		this.add(lblGameName);
-		
-		JButton btnSignOut = new JButton("Sign Out");
-		btnSignOut.setBounds(630, 505, 143, 38);
-		btnSignOut.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {	
-			}
-		});
-		btnSignOut.setAction(signoutAction);
-		this.add(btnSignOut);
 		
 		Object[] columns = new String[] {"Username", "Kills", "Deaths"};
 		Object[][] data = new Object[30][3];

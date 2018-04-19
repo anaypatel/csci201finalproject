@@ -166,8 +166,8 @@ public class Login extends JPanel {
 		});
 		this.setLayout(null);
 		
-		JLabel lblGameName = new JLabel("Game Name");
-		lblGameName.setBounds(275, 73, 251, 82);
+		JLabel lblGameName = new JLabel("Dragons & Fireballs");
+		lblGameName.setBounds(202, 98, 407, 82);
 		lblGameName.setForeground(Color.WHITE);
 		lblGameName.setFont(new Font("Lucida Grande", Font.PLAIN, 42));
 		this.add(lblGameName);
