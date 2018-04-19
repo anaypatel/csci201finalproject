@@ -124,7 +124,7 @@ public class GameServer  extends Thread
 					
 					for(Map.Entry<Integer,Player> entry : playerMap.entrySet())
 					{
-						entry.getValue().health = 10;
+						entry.getValue().health = 5;
 						if(entry.getValue().missiles.size() > 0)
 						{
 							entry.getValue().missiles = new ArrayList<Projectile>();

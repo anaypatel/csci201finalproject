@@ -16,7 +16,7 @@ public class Player implements Serializable
 	private int x;
 	private int y;
 	private int clientID;
-	public int health = 10;
+	public int health = 5;
 	public int kills = 0;
 	public int shots = 0;
 	public int hits = 0;
