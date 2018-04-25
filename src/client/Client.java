@@ -313,13 +313,20 @@ public class Client extends Thread
 			}
 		}
 
-		loginFrame.updateDatabase(board.player);
-		Leaderboard leaderboardFrame = new Leaderboard(this);
-		board.setVisible(false);
-		appWindow.getContentPane().removeAll();
-		appWindow.setContentPane(leaderboardFrame);
-		leaderboardFrame.setVisible(true);
-		
+		if(!board.player.username.equalsIgnoreCase("guest"))
+		{
+			loginFrame.updateDatabase(board.player);
+			Leaderboard leaderboardFrame = new Leaderboard(this);
+			board.setVisible(false);
+			appWindow.getContentPane().removeAll();
+			appWindow.setContentPane(leaderboardFrame);
+			leaderboardFrame.setVisible(true);
+		}
+		else
+		{
+			System.out.println("Guest closed Session");
+			appWindow.dispose();
+		}
 	}
 	
 	//DeSearialize Game Messsages
