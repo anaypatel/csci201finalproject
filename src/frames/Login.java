@@ -206,6 +206,14 @@ public class Login extends JPanel {
 		});
 		SignUp.setAction(signupAction);
 		this.add(SignUp);
+		
+		JButton Guest = new JButton("Guest");
+		Guest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		Guest.setBounds(352, 486, 143, 38);
+		add(Guest);
 	}
 	
 	private class LoginAction extends AbstractAction 
@@ -321,10 +329,7 @@ public class Login extends JPanel {
 			if(success)
 			{
 				c.loggedIn = true;
-			}
-			
-
-		
+			}		
 		}
 		
 		public boolean authenticate() 
@@ -427,6 +432,21 @@ public class Login extends JPanel {
 			
 			return true;
 			
+		}
+		
+	}
+
+	private class GuestAction extends AbstractAction{
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public boolean authenticate() {
+			return false;
 		}
 		
 	}
