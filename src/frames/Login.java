@@ -48,6 +48,7 @@ public class Login extends JPanel {
 	
 	private final Action loginAction = new LoginAction();
 	private final Action signupAction = new SignUpAction();
+	private final Action guestAction = new GuestAction();
 
 	public Login(Client _c) {
 		this.c = _c;
@@ -213,7 +214,8 @@ public class Login extends JPanel {
 			}
 		});
 		Guest.setBounds(352, 486, 143, 38);
-		add(Guest);
+		Guest.setAction(guestAction);
+		this.add(Guest);
 	}
 	
 	private class LoginAction extends AbstractAction 
@@ -441,9 +443,9 @@ public class Login extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-		c.loggedIn = true;
-		usernameField.setText("Guest");		
-		System.out.println("Clicked");
+			c.loggedIn = true;
+			usernameField.setText("Guest");		
+			System.out.println("Clicked");
 		}
 		
 		public boolean authenticate() 
