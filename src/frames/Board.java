@@ -1,6 +1,7 @@
 package frames;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
@@ -242,7 +243,26 @@ public class Board extends JPanel implements ActionListener
 				}
 			}
 		}
+	//
+		
+		//g2d.drawRect(c, d, a, b);
+		 //g2d.drawString("Hi", (a+c)/2, (b+d)/2);
 	
+	 int squareX = 413;
+     int squareY = 660;
+     int squareW = 413;
+     int squareH = 35;
+    g2d.setColor(Color.black);
+    g2d.fillRect(squareX, squareY, squareW, squareH );
+	g2d.drawRect(squareX, squareY, squareW, squareH);
+	 Font f = new Font ("Serif", Font.PLAIN, 18);
+	g2d.setFont(f);
+	 g2d.setColor(Color.white);
+	g2d.drawString(player.username, squareX + 17,squareY + 25);
+	g2d.drawString("Health: " + player.health, squareX + 177,squareY + 25);
+	g2d.drawString("Kills: " + player.kills, squareX + 350,squareY + 25);
+	;
+
 	}
 
 	//Action Performed Method that executes every 15ms
