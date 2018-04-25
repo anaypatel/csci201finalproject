@@ -441,11 +441,13 @@ public class Login extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
+		c.loggedIn = true;
+		usernameField.setText("Guest");		
+		System.out.println("Clicked");
 		}
 		
-		public boolean authenticate() {
+		public boolean authenticate() 
+		{
 			return false;
 		}
 		
